@@ -1,25 +1,41 @@
-import logo from './logo.svg';
+import React, {useState} from "react";
 import './App.css';
+import MyAlgoConnect from "@randlabs/myalgo-connect";
+import {getPolls} from "./utils/pollCentre";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const App = function AppWrapper() {
+
+    const [address, setAddress] = useState(null);
+    const [polls, setPolls] = useState([]);
+
+    const connectToMyAlgoWallet = async () => {
+      try {
+        const accounts = await new MyAlgoConnect().connect();
+        const account = accounts[0];
+        setAddress(account.address);
+        getPolls().then(polls => { //todo getPolls()
+            setPolls(polls)
+        });
+      } catch (e) {
+        console.log('Problem while trying to connect to MyAlgo wallet');
+        console.error(e);
+      }
+    };
+
+    return (
+        <>
+            {address ? (
+               polls.map(poll => (
+                 <button key={poll}>{poll.title}</button>
+               ))
+                // polls.forEach((poll) => <button>poll.title</button>)
+            ) : (
+                <button onClick={connectToMyAlgoWallet}>CONNECT WALLET</button>
+            )}
+        </>
+    );
 }
 
 export default App;
+
+//<button>AAA {poll.title}</button>
