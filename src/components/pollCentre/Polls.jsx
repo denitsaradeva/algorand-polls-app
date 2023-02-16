@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from "react";
 import Poll from "./Poll";
-import {castVote, createNewPoll, removePoll, getPolls} from "../../utils/pollCentre";
+import {createNewPoll, getPolls} from "../../utils/pollCentre";
 import PropTypes from "prop-types";
-import {Row, Button, Form, FormGroup} from "react-bootstrap";
+import {Row, Button, Form} from "react-bootstrap";
 
 const Polls = ({address}) => {
     const [allPolls, setAllPolls] = useState([]);
@@ -32,6 +32,7 @@ const Polls = ({address}) => {
     };
 
     const handleSubmit = event => {
+        event.preventDefault();
         createNewPoll(address, title, options)
             .then(() => {
                 getPollsUpdate();
@@ -39,12 +40,11 @@ const Polls = ({address}) => {
             .catch(error => {
                 console.log(error);
             })
-        console.log(title);
-        console.log(options);
     };
 
     useEffect(() => {
         getPollsUpdate();
+        console.log(address);
     }, []);
 
 
