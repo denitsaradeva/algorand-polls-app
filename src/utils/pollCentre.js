@@ -75,7 +75,6 @@ export const createNewPoll = async (senderAddress, pollTitle, pollOptions) => {
     params.fee = algosdk.ALGORAND_MIN_TX_FEE;
     params.flatFee = true;
 
-    let votedParam = 0;
     let creatorParam= 'deni';
 
     // Compile programs
@@ -87,11 +86,8 @@ export const createNewPoll = async (senderAddress, pollTitle, pollOptions) => {
     let title = new TextEncoder().encode(pollTitle);
     let creator = new TextEncoder().encode(creatorParam);
     let options = new TextEncoder().encode(pollOptions);
-    let voted = algosdk.encodeUint64(0);
-    console.log("Adding poll...12")
 
-    let appArgs = [title, creator, options, voted]
-    console.log("Adding poll...13")
+    let appArgs = [title, creator, options]
 
     // Create ApplicationCreateTxn
     let txn = algosdk.makeApplicationCreateTxnFromObject({
@@ -107,27 +103,20 @@ export const createNewPoll = async (senderAddress, pollTitle, pollOptions) => {
         note: note,
         appArgs: appArgs
     });
-    console.log("Adding poll...14")
 
     // Get transaction ID
     let txId = txn.txID().toString();
-    console.log("Adding poll...15")
 
     // Sign & submit the transaction
     let signedTxn = await myAlgoConnect.signTransaction(txn.toByte());
-    console.log("Adding poll...16")
     console.log("Signed transaction with txID: %s", txId);
-    console.log("Adding poll...17")
     await algodClient.sendRawTransaction(signedTxn.blob).do();
-    console.log("Adding poll...18")
 
     // Wait for transaction to be confirmed
     let confirmedTxn = await algosdk.waitForConfirmation(algodClient, txId, 4);
-    console.log("Adding poll...19")
 
     // Get the completed Transaction
     console.log("Transaction " + txId + " confirmed in round " + confirmedTxn["confirmed-round"]);
-    console.log("Adding poll...20")
 
     // Get created application id and notify about completion
     let transactionResponse = await algodClient.pendingTransactionInformation(txId).do();
