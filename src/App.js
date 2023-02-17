@@ -3,6 +3,7 @@ import './App.css';
 import MyAlgoConnect from "@randlabs/myalgo-connect";
 import Home from "./components/Home";
 import Polls from "./components/pollCentre/Polls";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const App = function AppWrapper() {
 

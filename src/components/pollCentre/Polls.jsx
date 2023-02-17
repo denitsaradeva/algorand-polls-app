@@ -4,6 +4,7 @@ import {createNewPoll, getPolls} from "../../utils/pollCentre";
 import PropTypes from "prop-types";
 import {Row, Button, Form} from "react-bootstrap";
 
+
 const Polls = ({address}) => {
     const [allPolls, setAllPolls] = useState([]);
     const [title, setTitle] = useState('');

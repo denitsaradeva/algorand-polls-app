@@ -2,7 +2,6 @@ import algosdk from "algosdk";
 import {
     indexerClient,
     marketplaceNote,
-    minRound,
     algodClient,
     myAlgoConnect,
     numGlobalBytes,
