@@ -2,10 +2,7 @@ import React, {useState} from "react";
 import PropTypes from "prop-types";
 import {Badge, Button, Card, Col, Stack} from "react-bootstrap";
 
-const Poll = ({address, poll}) => {
-    const {title, voted, options, creator} =
-        poll;
-
+const Poll = ({address, creator, title, options, voted}) => {
     return (
         <Col>
             <Card className="h-100">
