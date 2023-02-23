@@ -10,8 +10,8 @@ import {
     numLocalInts
 } from "./constants";
 /* eslint import/no-webpack-loader-syntax: off */
-import approvalProgram from "!!raw-loader!../contracts/pollingSystem_approval.teal";
-import clearProgram from "!!raw-loader!../contracts/pollingSystem_clear.teal";
+import approvalProgram from "!!raw-loader!../contracts/pollSystem_approval.teal";
+import clearProgram from "!!raw-loader!../contracts/pollSystem_clear.teal";
 import {base64ToUTF8String, utf8ToBase64String} from "./conversions";
 
 class Poll {
@@ -74,7 +74,7 @@ export const createNewPoll = async (senderAddress, pollTitle, pollOptions) => {
     params.fee = algosdk.ALGORAND_MIN_TX_FEE;
     params.flatFee = true;
 
-    let creatorParam= 'deni';
+    // let creatorParam= 'deni';
 
     // Compile programs
     const compiledApprovalProgram = await compileProgram(approvalProgram)
@@ -83,10 +83,10 @@ export const createNewPoll = async (senderAddress, pollTitle, pollOptions) => {
     // Build note to identify transaction later and required app args as Uint8Arrays
     let note = new TextEncoder().encode(marketplaceNote);
     let title = new TextEncoder().encode(pollTitle);
-    let creator = new TextEncoder().encode(creatorParam);
-    let options = new TextEncoder().encode(pollOptions);
+    // let creator = new TextEncoder().encode(creatorParam);
+    // let options = new TextEncoder().encode(pollOptions);
 
-    let appArgs = [title, creator, options]
+    let appArgs = [title]
 
     // Create ApplicationCreateTxn
     let txn = algosdk.makeApplicationCreateTxnFromObject({

@@ -1,6 +1,5 @@
 import React from 'react';
 import {Button} from "react-bootstrap";
-import PropTypes from 'prop-types';
 
 const Home = ({connect}) => {
     return (
@@ -24,10 +23,6 @@ const Home = ({connect}) => {
             <p className="mt-auto text-secondary">Powered by Algorand</p>
         </div>
     );
-};
-
-Home.propTypes = {
-    connect: PropTypes.func
 };
 
 export default Home;

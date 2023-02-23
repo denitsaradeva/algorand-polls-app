@@ -1,0 +1,102 @@
+#pragma version 6
+txn ApplicationID
+int 0
+==
+bnz main_l16
+txn OnCompletion
+int DeleteApplication
+==
+bnz main_l15
+txn OnCompletion
+int UpdateApplication
+==
+bnz main_l14
+txn OnCompletion
+int CloseOut
+==
+bnz main_l11
+txn OnCompletion
+int OptIn
+==
+bnz main_l10
+txna ApplicationArgs 0
+byte "vote"
+==
+bnz main_l7
+err
+main_l7:
+int 0
+global CurrentApplicationID
+byte "VOTED"
+app_local_get_ex
+store 1
+store 0
+load 1
+bnz main_l9
+txna ApplicationArgs 1
+txna ApplicationArgs 1
+app_global_get
+int 1
++
+app_global_put
+int 0
+byte "VOTED"
+txna ApplicationArgs 1
+app_local_put
+int 1
+return
+main_l9:
+int 0
+return
+main_l10:
+int 1
+return
+main_l11:
+int 0
+global CurrentApplicationID
+byte "VOTED"
+app_local_get_ex
+store 1
+store 0
+load 1
+bnz main_l13
+main_l12:
+int 1
+return
+main_l13:
+load 0
+load 0
+app_global_get
+int 1
+-
+app_global_put
+b main_l12
+main_l14:
+txn Sender
+byte "CREATOR"
+app_global_get
+==
+return
+main_l15:
+txn Sender
+byte "CREATOR"
+app_global_get
+==
+return
+main_l16:
+txn NumAppArgs
+int 1
+==
+assert
+txn Note
+byte "polling-system:uv3"
+==
+assert
+byte "TITLE"
+txna ApplicationArgs 0
+app_global_put
+byte "CREATOR"
+txn Sender
+app_global_put
+int 1
+return

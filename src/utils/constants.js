@@ -19,7 +19,7 @@ export const myAlgoConnect = new MyAlgoConnect();
 export const minRound = 21540981;
 
 // https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0002.md
-export const marketplaceNote = "polling-system:uv1"
+export const marketplaceNote = "polling-system:uv3"
 
 // Maximum local storage allocation, immutable
 export const numLocalInts = 0;
