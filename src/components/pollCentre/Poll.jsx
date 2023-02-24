@@ -20,14 +20,6 @@ const Poll = ({address, title, options}) => {
                     <Card.Title>{title}</Card.Title>
                 </Card.Header>
                 <Card.Body className="d-flex flex-column text-center">
-                    {/* <Form>
-                        <Form.Check 
-                            type="radio"
-                            label={options}
-                            name="myRadios"
-                            id="option1"
-                        />
-                    </Form> */}
                 {options.map((option) => (
                     <InputGroup key={option}>
                         <InputGroup.Radio

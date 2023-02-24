@@ -7,15 +7,16 @@ const Polls = ({address}) => {
     const [allPolls, setAllPolls] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [showPoll, setShowPoll] = useState(false);
+
+    const [currentTitle, setCurrentTitle] = useState('');
+    const [currentOptions, setCurrentOptions] = useState([]);
+    const [currentIndex, setCurrentIndex] = useState('');
+
     const [title, setTitle] = useState('');
     const [options, setOptions] = useState([]);
-    const [currentTitle, setCurrentTitle] = useState('');
-    const [currentIndex, setCurrentIndex] = useState('');
-    const [optionsRecord, setOptionsRecord] = useState([{}]);
 
     const handleTitleChange = event => {
         setTitle(event.target.value);
-        console.log(title);
     };
 
     const handleOptionsChange = (event, index) => {
@@ -30,19 +31,12 @@ const Polls = ({address}) => {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        let result = options.join(", ");
+        let result = options.join(",");
         createNewPoll(address, title, result)
             .then(()=> getPollsUpdate())
             .catch(error => {
                 console.log(error);
             });
-        console.log('testtt1')
-        console.log(title)
-        console.log(result)
-        setOptionsRecord([...optionsRecord, {
-            'title': title,
-            'value': options
-        }]);
         handleCloseModal();
     };
 
@@ -61,6 +55,9 @@ const Polls = ({address}) => {
     
     const handleOpenPoll = (poll, index) => {
         setCurrentTitle(poll.title);
+        const inputOptions = poll.options;
+        const optionsData = inputOptions.split(",");
+        setCurrentOptions(optionsData);
         setCurrentIndex(index);
         setShowPoll(true);
     };
@@ -86,9 +83,6 @@ const Polls = ({address}) => {
         console.log(address);
     }, []);
 
-    const currentOptionRecord = optionsRecord.find(option => option.title === currentTitle);
-    const currentOptions = currentOptionRecord ? currentOptionRecord.value : [];
-
 	return (
 	    <>
 	        <div className="d-flex justify-content-between align-items-center mb-4">
@@ -104,7 +98,7 @@ const Polls = ({address}) => {
                                 <Button variant="secondary" onClick={() => handleOpenPoll(poll, index)} key={index}>See more</Button>
                             </Card.Body>
                         </Card>
-	                )).reverse().slice(18)}
+	                )).reverse().slice(20)}
 	            </>
 	        </Row>
 

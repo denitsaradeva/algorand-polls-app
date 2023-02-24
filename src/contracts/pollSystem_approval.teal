@@ -33,15 +33,15 @@ store 1
 store 0
 load 1
 bnz main_l9
-txna ApplicationArgs 1
-txna ApplicationArgs 1
+txna ApplicationArgs 2
+txna ApplicationArgs 2
 app_global_get
 int 1
 +
 app_global_put
 int 0
 byte "VOTED"
-txna ApplicationArgs 1
+txna ApplicationArgs 2
 app_local_put
 int 1
 return
@@ -85,15 +85,18 @@ app_global_get
 return
 main_l16:
 txn NumAppArgs
-int 1
+int 2
 ==
 assert
 txn Note
-byte "polling-system:uv3"
+byte "polling-system:uv4"
 ==
 assert
 byte "TITLE"
 txna ApplicationArgs 0
+app_global_put
+byte "OPTIONS"
+txna ApplicationArgs 1
 app_global_put
 byte "CREATOR"
 txn Sender

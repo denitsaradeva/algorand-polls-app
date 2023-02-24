@@ -15,11 +15,10 @@ import clearProgram from "!!raw-loader!../contracts/pollSystem_clear.teal";
 import {base64ToUTF8String, utf8ToBase64String} from "./conversions";
 
 class Poll {
-    constructor(title, creator, options, voted) {
+    constructor(owner, title, options) {
         this.title = title;
-        this.creator = creator;
+        this.owner = owner;
         this.options = options;
-        this.voted = voted;
     }
 }
 
@@ -37,7 +36,6 @@ export const getPolls = async () => {
         });
 
     let polls = []
-    console.log(transactionInfo.transactions);
     for (const transaction of transactionInfo.transactions) {
         let appId = transaction["created-application-index"]
         if (appId) {
@@ -74,8 +72,6 @@ export const createNewPoll = async (senderAddress, pollTitle, pollOptions) => {
     params.fee = algosdk.ALGORAND_MIN_TX_FEE;
     params.flatFee = true;
 
-    // let creatorParam= 'deni';
-
     // Compile programs
     const compiledApprovalProgram = await compileProgram(approvalProgram)
     const compiledClearProgram = await compileProgram(clearProgram)
@@ -83,10 +79,9 @@ export const createNewPoll = async (senderAddress, pollTitle, pollOptions) => {
     // Build note to identify transaction later and required app args as Uint8Arrays
     let note = new TextEncoder().encode(marketplaceNote);
     let title = new TextEncoder().encode(pollTitle);
-    // let creator = new TextEncoder().encode(creatorParam);
-    // let options = new TextEncoder().encode(pollOptions);
+    let options = new TextEncoder().encode(pollOptions);
 
-    let appArgs = [title]
+    let appArgs = [title, options]
 
     // Create ApplicationCreateTxn
     let txn = algosdk.makeApplicationCreateTxnFromObject({
@@ -126,19 +121,15 @@ export const createNewPoll = async (senderAddress, pollTitle, pollOptions) => {
 
 const getApplication = async (appId) => {
     try {
-        // 1. Get application by appId
         let response = await indexerClient.lookupApplications(appId).includeAll(true).do();
         if (response.application.deleted) {
             return null;
         }
         let globalState = response.application.params["global-state"]
 
-        // 2. Parse fields of response and return product
         let owner = response.application.params.creator
         let title = ""
-        let creator = ""
         let options = ""
-        let voted = 0
 
         const getField = (fieldName, globalState) => {
             return globalState.find(state => {
@@ -151,21 +142,12 @@ const getApplication = async (appId) => {
             title = base64ToUTF8String(field)
         }
 
-        if (getField("CREATOR", globalState) !== undefined) {
-            let field = getField("CREATOR", globalState).value.bytes
-            creator = base64ToUTF8String(field)
-        }
-
         if (getField("OPTIONS", globalState) !== undefined) {
             let field = getField("OPTIONS", globalState).value.bytes
             options = base64ToUTF8String(field)
         }
 
-        if (getField("VOTED", globalState) !== undefined) {
-            voted = getField("VOTED", globalState).value.uint
-        }
-
-        return new Poll(title, creator, options, voted, appId, owner)
+        return new Poll(owner, title, options)
     } catch (err) {
         return null;
     }
