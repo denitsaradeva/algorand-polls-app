@@ -1,33 +1,23 @@
-import React, {useState} from "react";
+import React from "react";
 import './App.css';
-import MyAlgoConnect from "@randlabs/myalgo-connect";
 import Home from "./components/Home";
 import Polls from "./components/pollCentre/Polls";
+import Poll from "./components/pollCentre/Poll";
+import PollCreation from "./components/pollCentre/PollCreation";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const App = function AppWrapper() {
 
-    const [address, setAddress] = useState(null);
-
-    const connectToMyAlgoWallet = async () => {
-      try {
-        const accounts = await new MyAlgoConnect().connect();
-        const account = accounts[0];
-        setAddress(account.address);
-      } catch (e) {
-        console.log('Problem while trying to connect to MyAlgo wallet');
-        console.error(e);
-      }
-    };
-
     return (
-        <>
-            {address ? (
-              <Polls address={address}/>
-            ) : (
-              <Home connect={connectToMyAlgoWallet}/>
-            )}
-        </>
+      <BrowserRouter>
+        <Routes>
+          <Route index element={<Home />} />
+          <Route path="/polls" element={<Polls />} />
+          <Route path="/vote" element={<Poll />} />
+          <Route path="/create" element={<PollCreation />} />
+        </Routes>
+      </BrowserRouter>
     );
 }
 

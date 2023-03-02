@@ -1,60 +1,36 @@
 import React, {useEffect, useState} from "react";
 import Poll from "./Poll";
-import {createNewPoll, getPolls} from "../../utils/pollCentre";
-import {Row, Button, Form, Modal, Card} from "react-bootstrap";
+import {getPolls, castVote} from "../../utils/pollCentre";
+import {Row, Button, Modal, Card} from "react-bootstrap";
+import { Link, useLocation } from 'react-router-dom';
 
-const Polls = ({address}) => {
+const Polls = () => {
     const [allPolls, setAllPolls] = useState([]);
-    const [showModal, setShowModal] = useState(false);
     const [showPoll, setShowPoll] = useState(false);
+    const location = useLocation();
+    const searchParams = new URLSearchParams(location.search);
+    const address = searchParams.get('address');
 
     const [currentTitle, setCurrentTitle] = useState('');
     const [currentOptions, setCurrentOptions] = useState([]);
     const [currentIndex, setCurrentIndex] = useState('');
 
-    const [title, setTitle] = useState('');
-    const [options, setOptions] = useState([]);
+    const [currentPoll, setCurrentPoll] = useState('')
 
-    const handleTitleChange = event => {
-        setTitle(event.target.value);
-    };
-
-    const handleOptionsChange = (event, index) => {
-        const newOptions = [...options];
-        newOptions[index] = event.target.value;
-        setOptions(newOptions);
-    };
-
-    const addOption = () => {
-        setOptions([...options, ""]);
-    };
-
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        let result = options.join(",");
-        createNewPoll(address, title, result)
-            .then(()=> getPollsUpdate())
-            .catch(error => {
-                console.log(error);
+    const handleVote = (choice, appId) => {
+        if(choice !== ''){
+            castVote(address, choice, appId)
+                .then(()=> getPollsUpdate())
+                .catch(error => {
+                    console.log(error);
             });
-        handleCloseModal();
-    };
-
-    const handleVote = event => {
-        event.preventDefault();
-        console.log("todo..");
-    };
-
-    const handleOpenModal = () => {
-      setShowModal(true);
-    };
-  
-    const handleCloseModal = () => {
-      setShowModal(false);
+            console.log("done handling vote..");
+        }  
     };
     
     const handleOpenPoll = (poll, index) => {
         setCurrentTitle(poll.title);
+        setCurrentPoll(poll);
         const inputOptions = poll.options;
         const optionsData = inputOptions.split(",");
         setCurrentOptions(optionsData);
@@ -80,7 +56,6 @@ const Polls = ({address}) => {
 
     useEffect(() => {
         getPollsUpdate();
-        console.log(address);
     }, []);
 
 	return (
@@ -102,38 +77,9 @@ const Polls = ({address}) => {
 	            </>
 	        </Row>
 
-            <Button variant="primary" type="submit" onClick={handleOpenModal}>Add a Poll</Button>
-
-            
-            <Modal show={showModal} onHide={handleCloseModal}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Poll Information</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form onSubmit={handleSubmit}>
-                        <div>
-                            <Form.Label htmlFor="title">Title:</Form.Label>
-                            <Form.Group className="mb-3" onChange={handleTitleChange} value={title} >
-                                <Form.Control placeholder="Title" />
-                            </Form.Group>
-                        </div>
-                        <div>
-                            <label htmlFor="options">Options:</label>
-                            {options.map((option, index) => (
-                                <div key={index}>
-                                    <Form.Control placeholder="Option" onChange={(e) => handleOptionsChange(e, index)} value={option} />
-                                </div>
-                            ))}
-                            <Button variant="secondary" type="button" onClick={addOption}>
-                            Add Option
-                            </Button>
-                        </div>
-                        <Button variant="primary" type="submit" onClick={handleSubmit}>
-                            Create Poll
-                        </Button>
-                    </Form>
-                </Modal.Body>
-            </Modal>
+            <Link to={`/create?address=${address}`}>
+                <Button variant="primary" type="submit">Add a Poll</Button>
+            </Link>
 
             <Modal show={showPoll} onHide={handleClosePoll}>
                 <Modal.Header closeButton>
@@ -141,14 +87,14 @@ const Polls = ({address}) => {
                 </Modal.Header>
                 <Modal.Body>
                     <Poll
+
                         address={address}
                         title={currentTitle}
                         options={currentOptions}
+                        appId={currentPoll.appId}
+                        onOptionSelect={handleVote}
                         key={currentIndex}
                     />
-                    <Button variant="primary" type="submit" onClick={handleVote}>
-                            Vote
-                    </Button>
                 </Modal.Body>
             </Modal>
 	    </>

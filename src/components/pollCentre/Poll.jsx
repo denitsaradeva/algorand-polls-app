@@ -1,7 +1,7 @@
 import React, {useState} from "react";
-import {Card, Col, Form, InputGroup} from "react-bootstrap";
+import {Card, Col, Form, InputGroup, Button} from "react-bootstrap";
 
-const Poll = ({address, title, options}) => {
+const Poll = ({address, title, options, appId, onOptionSelect}) => {
     console.log("in poll")
     console.log(options)
 
@@ -10,7 +10,6 @@ const Poll = ({address, title, options}) => {
     const handleChange = (event) => {
         const value = event.target.value;
         setSelectedOption(value);
-        // onChange(value);
     };
 
     return (
@@ -33,6 +32,11 @@ const Poll = ({address, title, options}) => {
                     </InputGroup>
                 ))}
                 </Card.Body>
+                <Card.Footer>
+                    <Button variant="primary" type="submit" onSubmit={onOptionSelect(selectedOption, appId)}>
+                        Vote
+                    </Button>
+                </Card.Footer>
             </Card>
         </Col>
     );
