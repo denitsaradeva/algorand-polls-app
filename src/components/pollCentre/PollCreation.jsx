@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {Form, Button} from "react-bootstrap";
 import {createNewPoll} from "../../utils/pollCentre";
-import {Link, useLocation, useNavigate} from 'react-router-dom';
+import {useLocation, useNavigate} from 'react-router-dom';
 
 const PollCreation = () => {
     const location = useLocation();
@@ -30,11 +30,8 @@ const PollCreation = () => {
     const handleSubmit = (event) => {
         event.preventDefault();
         let result = options.join(",");
-        console.log('aa')
-        console.log(address)
         createNewPoll(address, title, result)
             .then(() => {
-                //`polls?address=${address}`, {replace: true}
                 navigate(-1);
             })
             .catch(error => {

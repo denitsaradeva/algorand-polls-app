@@ -14,7 +14,7 @@ const App = function AppWrapper() {
         <Routes>
           <Route index element={<Home />} />
           <Route path="/polls" element={<Polls />} />
-          <Route path="/vote" element={<Poll />} />
+          {/* <Route path="/vote" element={<Poll />} /> */}
           <Route path="/create" element={<PollCreation />} />
         </Routes>
       </BrowserRouter>
