@@ -15,7 +15,7 @@ class Poll:
     
         on_creation = Seq([
             Assert(Txn.application_args.length() == Int(2)),
-            Assert(Txn.note() == Bytes("polling-system:uv4")),
+            Assert(Txn.note() == Bytes("polling-system:uv7")),
             App.globalPut(self.Variables.title, Txn.application_args[0]),
             App.globalPut(self.Variables.options, Txn.application_args[1]),
             App.globalPut(self.Variables.creator, Txn.sender()),
@@ -39,7 +39,7 @@ class Poll:
         
         on_register = Return(Int(1))
 
-        choice = Txn.application_args[2]
+        choice = Txn.application_args[1]
         choice_tally = App.globalGet(choice)
         
         on_vote = Seq([

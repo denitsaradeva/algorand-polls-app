@@ -19,8 +19,8 @@ txn OnCompletion
 int OptIn
 ==
 bnz main_l10
-txna ApplicationArgs 0
-byte "vote"
+txn OnCompletion
+int NoOp
 ==
 bnz main_l7
 err
@@ -33,16 +33,12 @@ store 1
 store 0
 load 1
 bnz main_l9
-txna ApplicationArgs 2
-txna ApplicationArgs 2
+txna ApplicationArgs 1
+txna ApplicationArgs 1
 app_global_get
 int 1
 +
 app_global_put
-int 0
-byte "VOTED"
-txna ApplicationArgs 2
-app_local_put
 int 1
 return
 main_l9:
@@ -89,7 +85,7 @@ int 2
 ==
 assert
 txn Note
-byte "polling-system:uv4"
+byte "polling-system:uv8"
 ==
 assert
 byte "TITLE"

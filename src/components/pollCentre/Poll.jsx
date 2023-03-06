@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {Card, Col, Form, InputGroup, Button} from "react-bootstrap";
 
-const Poll = ({address, title, options, appId, onOptionSelect}) => {
+const Poll = ({address, title, options, appId, votes, onOptionSelect}) => {
 
     const [selectedOption, setSelectedOption] = useState('');
 
@@ -31,7 +31,7 @@ const Poll = ({address, title, options, appId, onOptionSelect}) => {
                             checked={selectedOption === option}
                             onChange={handleChange}
                         />
-                        <Form.Label>{option}</Form.Label>
+                        <Form.Label>{option} - {votes[option]}</Form.Label>
                     </InputGroup>
                 ))}
                 </Card.Body>

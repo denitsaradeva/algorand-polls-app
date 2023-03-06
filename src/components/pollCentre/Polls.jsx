@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import Poll from "./Poll";
-import {getPolls, castVote} from "../../utils/pollCentre";
+import {getPolls, castVote, retrieveVotes, Optin} from "../../utils/pollCentre";
 import {Row, Button, Modal, Card} from "react-bootstrap";
 import { Link, useLocation } from 'react-router-dom';
 
@@ -14,11 +14,13 @@ const Polls = () => {
     const [currentTitle, setCurrentTitle] = useState('');
     const [currentOptions, setCurrentOptions] = useState([]);
     const [currentIndex, setCurrentIndex] = useState('');
+    const [currentVotes, setCurrentVotes] = useState({});
 
     const [currentPoll, setCurrentPoll] = useState('')
 
     const handleVote = (choice, appId) => {
         if(choice !== ''){
+            Optin(address, appId);
             castVote(address, choice, appId)
                 .then(()=> getPollsUpdate())
                 .catch(error => {
@@ -31,6 +33,11 @@ const Polls = () => {
     const handleOpenPoll = (poll, index) => {
         setCurrentTitle(poll.title);
         setCurrentPoll(poll);
+        retrieveVotes(poll.appId).then((value) => {
+            setCurrentVotes(value);
+        });
+        console.log('aa')
+        console.log(currentVotes)
         const inputOptions = poll.options;
         const optionsData = inputOptions.split(",");
         setCurrentOptions(optionsData);
@@ -73,7 +80,7 @@ const Polls = () => {
                                 <Button variant="secondary" onClick={() => handleOpenPoll(poll, index)} key={index}>See more</Button>
                             </Card.Body>
                         </Card>
-	                )).reverse().slice(20)}
+	                )).reverse().slice(28)}
 	            </>
 	        </Row>
 
@@ -92,6 +99,7 @@ const Polls = () => {
                         title={currentTitle}
                         options={currentOptions}
                         appId={currentPoll.appId}
+                        votes={currentVotes}
                         onOptionSelect={handleVote}
                         key={currentIndex}
                     />

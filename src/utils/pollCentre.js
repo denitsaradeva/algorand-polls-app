@@ -1,3 +1,4 @@
+/*global AlgoSigner*/
 import algosdk from "algosdk";
 import {
     indexerClient,
@@ -13,6 +14,7 @@ import {
 import approvalProgram from "!!raw-loader!../contracts/pollSystem_approval.teal";
 import clearProgram from "!!raw-loader!../contracts/pollSystem_clear.teal";
 import {base64ToUTF8String, utf8ToBase64String} from "./conversions";
+// import { algodClient } from './constants';
 
 class Poll {
     constructor(owner, title, options, appId) {
@@ -22,6 +24,8 @@ class Poll {
         this.appId = appId
     }
 }
+
+const userAccount =  algosdk.mnemonicToSecretKey("yellow find peace lion quote phrase web lend horn cloud erupt cage kidney chunk curtain crisp film argue chunk stock crater mask entry above mosquito")
 
 export const getPolls = async () => {
     console.log("Fetching polls...");
@@ -40,7 +44,6 @@ export const getPolls = async () => {
     for (const transaction of transactionInfo.transactions) {
         let appId = transaction["created-application-index"]
         if (appId) {
-            // Step 2: Get each application by application id
             let poll = await getApplication(appId)
             if (poll) {
                 polls.push(poll)
@@ -52,7 +55,6 @@ export const getPolls = async () => {
     return polls
 }
 
-// Compile smart contract in .teal format to program
 const compileProgram = async (programSource) => {
     let encoder = new TextEncoder();
     let programBytes = encoder.encode(programSource);
@@ -60,51 +62,144 @@ const compileProgram = async (programSource) => {
     return new Uint8Array(Buffer.from(compileResponse.result, "base64"));
 }
 
-// export const getAppIdByTitle = async (title) => {
-//     const limit = 1;
-//     const response = await indexerClient.searchForApplications()
-//       .limit(limit)
-//       .nextToken("")
-//       .applicationName(title)
-//       .do();
-  
-//     const app = response.applications[0];
-//     if (!app) {
-//       console.log(`Application with title ${title} not found`);
-//       return null;
-//     }
-  
-//     return app.id;
-//   }
+export const Optin = async (senderAddress, appId) => {
+ 
+    let params = await algodClient.getTransactionParams().do()
+    params.fee = 1000;
+    params.flatFee = true;
+
+    let txn = algosdk.makeApplicationOptInTxn(senderAddress, params, appId);
+    let txId = txn.txID().toString();
+    let signedTxn = txn.signTxn(userAccount.sk);
+    console.log("Signed transaction with txID: %s", txId);
+
+    await algodClient.sendRawTransaction(signedTxn).do()   
+       const confirmedTxn = await algosdk.waitForConfirmation(algodClient, txId, 4);
+        console.log("confirmed" + confirmedTxn)
+        console.log("Transaction " + txId + " confirmed in round " + confirmedTxn["confirmed-round"]);
+      
+        const transactionResponse = await algodClient.pendingTransactionInformation(txId).do();
+        console.log("OptIn to app-id:", transactionResponse['txn']['txn']['apid']);
+}
 
 export const castVote = async (senderAddress, choice, appId) => {
-    const note = new Uint8Array(Buffer.from('polling-system:uv4'));
-    // const vote = Buffer.from('vote').toString('hex');
-    // const choiceEnc = Buffer.from(choice).toString('hex');
-    let vote = new TextEncoder().encode('vote');
-    let choiceEnc = new TextEncoder().encode(choice);
+    
+      let vote = "vote"
+      const appArgs = []
+      appArgs.push(
+        new Uint8Array(Buffer.from(vote)),
+        new Uint8Array(Buffer.from(choice)),
+       )
+      let params = await algodClient.getTransactionParams().do()
+        // params.fee = 1000;
+        // params.flatFee = true;
+    
+      // create unsigned transaction
+      let txn = algosdk.makeApplicationNoOpTxn(senderAddress, params, appId, appArgs)
 
-    const params = await algodClient.getTransactionParams().do();
-    const onVoteTxn = algosdk.makeApplicationNoOpTxn(
-        senderAddress,
-        params,
-        appId,
-        [algosdk.encodeUint64(0), vote, choiceEnc]
-    );
+      let txId = txn.txID().toString();
+        // Sign the transaction
+    
+        // // Use the AlgoSigner encoding library to make the transactions base64
+        // const txn_b64 = await AlgoSigner.encoding.msgpackToBase64(txn.toByte());
+    
+        // let signedTxs  = await myAlgoConnect.signTransaction(txn.toByte())
+        // console.log(signedTxs)
+        
+        // // Get the base64 encoded signed transaction and convert it to binary
+        // await algodClient.sendRawTransaction(signedTxs.blob).do();
+    
+        let signedTxn = txn.signTxn(userAccount.sk);
+        console.log("Signed transaction with txID: %s", txId);
+    
+        // Submit the transaction
+        await algodClient.sendRawTransaction(signedTxn).do() 
 
-    let txId = onVoteTxn.txID().toString();
+        // // Send the transaction through the SDK client
+        // let txId = await algodClient.sendRawTransaction(binarySignedTx).do();
+        //   console.log(txId)
+    
+        const confirmedTxn = await algosdk.waitForConfirmation(algodClient, txId, 4);
+        console.log("confirmed" + confirmedTxn)
+    
+        //Get the completed Transaction
+        console.log("Transaction " + txId + " confirmed in round " + confirmedTxn["confirmed-round"]);
+    
+      // display results
+      let transactionResponse = await algodClient.pendingTransactionInformation(txId).do();
+      console.log("Called app-id:",transactionResponse['txn']['txn']['apid']);
+      if (transactionResponse['global-state-delta'] !== undefined ) {
+          console.log("Global State updated:",transactionResponse['global-state-delta']);
+      }
+      if (transactionResponse['local-state-delta'] !== undefined ) {
+          console.log("Local State updated:",transactionResponse['local-state-delta']);
+      }
 
-    // Sign & submit the transaction
-    let signedTxn = await myAlgoConnect.signTransaction(onVoteTxn.toByte());
-    console.log("Signed transaction with txID: %s", txId);
-    await algodClient.sendRawTransaction(signedTxn.blob).do();
 
-    // Wait for transaction to be confirmed
-    let confirmedTxn = await algosdk.waitForConfirmation(algodClient, txId, 4);
+//     const note = new Uint8Array(Buffer.from('polling-system:uv5'));
+//     let vote = 'vote';
+//     let choiceEnc = new TextEncoder().encode(choice);
 
-    // Get the completed Transaction
-    console.log("Transaction " + txId + " confirmed in round " + confirmedTxn["confirmed-round"]);
+//     const params = await algodClient.getTransactionParams().do();
 
+//     const appArgs = []
+//     appArgs.push(
+//         new Uint8Array(Buffer.from(vote)),
+//         new Uint8Array(Buffer.from(choice)),
+//    )
+
+//     const onVoteTxn = algosdk.makeApplicationOptInTxn(
+//         senderAddress,
+//         params,
+//         appId,
+//         // [vote, choiceEnc]
+//         appArgs
+//     );
+
+//     console.log('aa')
+//     console.log(onVoteTxn)
+
+//     let txId = onVoteTxn.txID().toString();
+
+//     try {
+//         let signedTxn = await myAlgoConnect.signTransaction(onVoteTxn.toByte());
+//         console.log("Signed transaction with txID: %s", txId);
+//         console.log(signedTxn)
+//         await algodClient.sendRawTransaction(signedTxn.blob).do();
+    
+//         let confirmedTxn = await algosdk.waitForConfirmation(algodClient, txId, 100);
+    
+//         console.log("Transaction " + txId + " confirmed in round " + confirmedTxn["confirmed-round"]);
+//     } catch (error) {
+//         console.error("Error submitting transaction: ", error);
+//     }
+
+}
+
+export const retrieveVotes = async (appID) => {
+    console.log(appID)
+    let globalState = {}
+    try {
+        globalState = await algodClient.getApplicationByID(appID).do();
+        console.log(globalState);
+      } catch (error) {
+        console.error(error);
+      }
+      
+    const voteCounts = {};
+    for (const entry of globalState['params']['global-state']) {
+        const key = base64ToUTF8String(entry['key']);
+        const value = base64ToUTF8String(entry['value']['bytes']);
+        console.log('keyy')
+        console.log(key)
+        console.log('valuee')
+        console.log(value)
+        if (key !== 'TITLE' && key !== 'CREATOR' && key !== 'CHOICE' && key !== 'OPTIONS') {
+            voteCounts[key] = parseInt(value);
+        }
+    }
+
+    return voteCounts;
 }
 
 // export const removePoll = async (senderAddress, index) => {
@@ -117,18 +212,15 @@ export const createNewPoll = async (senderAddress, pollTitle, pollOptions) => {
     params.fee = algosdk.ALGORAND_MIN_TX_FEE;
     params.flatFee = true;
 
-    // Compile programs
     const compiledApprovalProgram = await compileProgram(approvalProgram)
     const compiledClearProgram = await compileProgram(clearProgram)
 
-    // Build note to identify transaction later and required app args as Uint8Arrays
     let note = new TextEncoder().encode(marketplaceNote);
     let title = new TextEncoder().encode(pollTitle);
     let options = new TextEncoder().encode(pollOptions);
 
     let appArgs = [title, options]
 
-    // Create ApplicationCreateTxn
     let txn = algosdk.makeApplicationCreateTxnFromObject({
         from: senderAddress,
         suggestedParams: params,
@@ -143,21 +235,18 @@ export const createNewPoll = async (senderAddress, pollTitle, pollOptions) => {
         appArgs: appArgs
     });
 
-    // Get transaction ID
     let txId = txn.txID().toString();
 
-    // Sign & submit the transaction
     let signedTxn = await myAlgoConnect.signTransaction(txn.toByte());
     console.log("Signed transaction with txID: %s", txId);
+    console.log("creation")
+    console.log(signedTxn)
     await algodClient.sendRawTransaction(signedTxn.blob).do();
 
-    // Wait for transaction to be confirmed
     let confirmedTxn = await algosdk.waitForConfirmation(algodClient, txId, 4);
 
-    // Get the completed Transaction
     console.log("Transaction " + txId + " confirmed in round " + confirmedTxn["confirmed-round"]);
 
-    // Get created application id and notify about completion
     let transactionResponse = await algodClient.pendingTransactionInformation(txId).do();
     let appId = transactionResponse['application-index'];
     console.log("Created new app-id: ", appId);
@@ -185,11 +274,6 @@ const getApplication = async (appId) => {
         if (getField("TITLE", globalState) !== undefined) {
             let field = getField("TITLE", globalState).value.bytes
             title = base64ToUTF8String(field)
-        }
-
-        if (getField("OPTIONS", globalState) !== undefined) {
-            let field = getField("OPTIONS", globalState).value.bytes
-            options = base64ToUTF8String(field)
         }
 
         if (getField("OPTIONS", globalState) !== undefined) {
