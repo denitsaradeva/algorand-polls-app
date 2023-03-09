@@ -39,7 +39,7 @@ int 0
 >
 bnz main_l11
 txna ApplicationArgs 1
-int 0
+int 1
 app_global_put
 main_l10:
 int 0

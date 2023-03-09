@@ -129,7 +129,7 @@ export const retrieveVotes = async (appID) => {
     const voteCounts = {};
     for (const entry of globalState['params']['global-state']) {
         const key = base64ToUTF8String(entry['key']);
-        const value = base64ToUTF8String(entry['value']['bytes']);
+        const value = entry['value']['uint'];
         console.log('keyy')
         console.log(key)
         console.log('valuee')
