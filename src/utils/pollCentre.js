@@ -91,41 +91,21 @@ export const castVote = async (senderAddress, choice, appId) => {
         new Uint8Array(Buffer.from(choice)),
        )
       let params = await algodClient.getTransactionParams().do()
-        // params.fee = 1000;
-        // params.flatFee = true;
-    
-      // create unsigned transaction
+      
       let txn = algosdk.makeApplicationNoOpTxn(senderAddress, params, appId, appArgs)
 
       let txId = txn.txID().toString();
-        // Sign the transaction
-    
-        // // Use the AlgoSigner encoding library to make the transactions base64
-        // const txn_b64 = await AlgoSigner.encoding.msgpackToBase64(txn.toByte());
-    
-        // let signedTxs  = await myAlgoConnect.signTransaction(txn.toByte())
-        // console.log(signedTxs)
-        
-        // // Get the base64 encoded signed transaction and convert it to binary
-        // await algodClient.sendRawTransaction(signedTxs.blob).do();
-    
+       
         let signedTxn = txn.signTxn(userAccount.sk);
         console.log("Signed transaction with txID: %s", txId);
     
-        // Submit the transaction
         await algodClient.sendRawTransaction(signedTxn).do() 
 
-        // // Send the transaction through the SDK client
-        // let txId = await algodClient.sendRawTransaction(binarySignedTx).do();
-        //   console.log(txId)
-    
         const confirmedTxn = await algosdk.waitForConfirmation(algodClient, txId, 4);
         console.log("confirmed" + confirmedTxn)
     
-        //Get the completed Transaction
         console.log("Transaction " + txId + " confirmed in round " + confirmedTxn["confirmed-round"]);
     
-      // display results
       let transactionResponse = await algodClient.pendingTransactionInformation(txId).do();
       console.log("Called app-id:",transactionResponse['txn']['txn']['apid']);
       if (transactionResponse['global-state-delta'] !== undefined ) {
@@ -134,46 +114,6 @@ export const castVote = async (senderAddress, choice, appId) => {
       if (transactionResponse['local-state-delta'] !== undefined ) {
           console.log("Local State updated:",transactionResponse['local-state-delta']);
       }
-
-
-//     const note = new Uint8Array(Buffer.from('polling-system:uv5'));
-//     let vote = 'vote';
-//     let choiceEnc = new TextEncoder().encode(choice);
-
-//     const params = await algodClient.getTransactionParams().do();
-
-//     const appArgs = []
-//     appArgs.push(
-//         new Uint8Array(Buffer.from(vote)),
-//         new Uint8Array(Buffer.from(choice)),
-//    )
-
-//     const onVoteTxn = algosdk.makeApplicationOptInTxn(
-//         senderAddress,
-//         params,
-//         appId,
-//         // [vote, choiceEnc]
-//         appArgs
-//     );
-
-//     console.log('aa')
-//     console.log(onVoteTxn)
-
-//     let txId = onVoteTxn.txID().toString();
-
-//     try {
-//         let signedTxn = await myAlgoConnect.signTransaction(onVoteTxn.toByte());
-//         console.log("Signed transaction with txID: %s", txId);
-//         console.log(signedTxn)
-//         await algodClient.sendRawTransaction(signedTxn.blob).do();
-    
-//         let confirmedTxn = await algosdk.waitForConfirmation(algodClient, txId, 100);
-    
-//         console.log("Transaction " + txId + " confirmed in round " + confirmedTxn["confirmed-round"]);
-//     } catch (error) {
-//         console.error("Error submitting transaction: ", error);
-//     }
-
 }
 
 export const retrieveVotes = async (appID) => {

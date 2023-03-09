@@ -27,7 +27,7 @@ err
 main_l7:
 int 0
 global CurrentApplicationID
-byte "v"
+byte "voted"
 app_local_get_ex
 store 1
 store 0
@@ -43,7 +43,7 @@ int 0
 app_global_put
 main_l10:
 int 0
-byte "v"
+byte "voted"
 txna ApplicationArgs 1
 app_local_put
 int 1
@@ -65,7 +65,7 @@ return
 main_l14:
 int 0
 global CurrentApplicationID
-byte "v"
+byte "voted"
 app_local_get_ex
 store 1
 store 0
