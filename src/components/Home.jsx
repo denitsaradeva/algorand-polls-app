@@ -20,9 +20,9 @@ const Home = () => {
 
     return (
         <div className="d-flex justify-content-center flex-column text-center bg-black min-vh-100">
-            <div className="mt-auto text-light mb-5">
+            <div className=" text-light mb-5">
                 <div
-                    className=" ratio ratio-1x1 mx-auto mb-2"
+                    // className=" ratio ratio-1x1 mx-auto mb-2"
                     style={{maxWidth: "320px"}}
                 >
                 </div>
@@ -30,7 +30,7 @@ const Home = () => {
                 <p>Please connect your wallet to continue.</p>
                 <Button
                     onClick={() => connectToMyAlgoWallet()}
-                    variant="outline-light"
+                    // variant="outline-light"
                     className="rounded-pill px-3 mt-3"
                 >
                     Connect Wallet
@@ -38,7 +38,7 @@ const Home = () => {
                 {address && (
                     <Link to={`/polls?address=${address}`}>
                         <Button
-                            variant="outline-light"
+                            // variant="outline-light"
                             className="rounded-pill px-3 mt-3"
                         >
                             Go to Polls
@@ -46,7 +46,7 @@ const Home = () => {
                     </Link>
                 )}
             </div>
-            <p className="mt-auto text-secondary">Powered by Algorand</p>
+            {/* <p className="mt-auto text-secondary">Powered by Algorand</p> */}
         </div>
     );
 };

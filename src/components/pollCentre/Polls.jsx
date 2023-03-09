@@ -20,11 +20,12 @@ const Polls = () => {
 
     const handleVote = (choice, appId) => {
         if(choice !== ''){
-            Optin(address, appId);
-            castVote(address, choice, appId)
-                .then(()=> getPollsUpdate())
-                .catch(error => {
-                    console.log(error);
+            Optin(address, appId).then(() => {
+                castVote(address, choice, appId)
+                    .then(()=> getPollsUpdate())
+                    .catch(error => {
+                        console.log(error);
+                });
             });
             console.log("done handling vote..");
         }  
@@ -80,7 +81,7 @@ const Polls = () => {
                                 <Button variant="secondary" onClick={() => handleOpenPoll(poll, index)} key={index}>See more</Button>
                             </Card.Body>
                         </Card>
-	                )).reverse().slice(28)}
+	                )).reverse().slice(34)}
 	            </>
 	        </Row>
 
