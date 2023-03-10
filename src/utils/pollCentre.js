@@ -14,7 +14,6 @@ import {
 import approvalProgram from "!!raw-loader!../contracts/pollSystem_approval.teal";
 import clearProgram from "!!raw-loader!../contracts/pollSystem_clear.teal";
 import {base64ToUTF8String, utf8ToBase64String} from "./conversions";
-// import { algodClient } from './constants';
 
 class Poll {
     constructor(owner, title, options, appId) {
@@ -30,7 +29,6 @@ const userAccount =  algosdk.mnemonicToSecretKey("yellow find peace lion quote p
 export const getPolls = async () => {
     console.log("Fetching polls...");
     let note = new TextEncoder().encode(marketplaceNote);
-    let encodedNote = Buffer.from(note).toString("base64");
 
     const address = "ITBD5TIB7DX5GKKBL4KRJH574ZVKUVQESBWZ6NOTNSLQBAD4Q2B7WSMNQY";
     let transactionInfo = await indexerClient.searchForTransactions({address}).address(address)
@@ -116,6 +114,35 @@ export const castVote = async (senderAddress, choice, appId) => {
       }
 }
 
+export const retrieveEndTime = async (appID) => {
+    console.log(appID)
+    let globalState = {}
+    try {
+        globalState = await algodClient.getApplicationByID(appID).do();
+        console.log(globalState);
+      } catch (error) {
+        console.error(error);
+      }
+      
+    let endTime = 0;
+    for (const entry of globalState['params']['global-state']) {
+        const key = base64ToUTF8String(entry['key']);
+        const value = entry['value']['uint'];
+        console.log('keyy')
+        console.log(key)
+        console.log('valuee')
+        console.log(value)
+        if (key === 'EndVoting') {
+            endTime = value;
+        }
+    }
+
+    console.log('end time')
+    console.log(endTime)
+
+    return endTime;
+}
+
 export const retrieveVotes = async (appID) => {
     console.log(appID)
     let globalState = {}
@@ -162,19 +189,18 @@ export const createNewPoll = async (senderAddress, pollTitle, pollOptions) => {
 
     let currentRound = await algodClient.status().do()
     console.log(currentRound)
-    console.log("eee")
-    let VoteBegin = currentRound['last-round'] + 1
-    let VoteEnd = VoteBegin + 500
+    console.log("ee1e")
+    let lastRound = currentRound['last-round'];
+    let VoteBegin = lastRound % 100000000;
+    let VoteEnd = (VoteBegin + 20);
 
     console.log(VoteBegin)
     console.log(VoteEnd)
 
     let appArgs = [title, options]
 
-    console.log(appArgs.push(
-        new Uint8Array(Buffer.from(toBytes(VoteBegin))),
-        new Uint8Array(Buffer.from(toBytes(VoteEnd))),
-       ))
+    appArgs.push(algosdk.encodeUint64(VoteBegin))
+    appArgs.push(algosdk.encodeUint64(VoteEnd))
 
     let txn = algosdk.makeApplicationCreateTxnFromObject({
         from: senderAddress,

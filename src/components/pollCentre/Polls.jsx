@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
+import {algodClient} from "../../utils/constants";
 import Poll from "./Poll";
-import {getPolls, castVote, retrieveVotes, Optin} from "../../utils/pollCentre";
+import {getPolls, castVote, retrieveVotes, retrieveEndTime, Optin} from "../../utils/pollCentre";
 import {Row, Button, Modal, Card} from "react-bootstrap";
 import { Link, useLocation } from 'react-router-dom';
 
@@ -15,6 +16,8 @@ const Polls = () => {
     const [currentOptions, setCurrentOptions] = useState([]);
     const [currentIndex, setCurrentIndex] = useState('');
     const [currentVotes, setCurrentVotes] = useState({});
+    const [currentRound, setCurrentRound] = useState(0);
+    const [endTime, setEndTime] = useState(0);
 
     const [currentPoll, setCurrentPoll] = useState('')
 
@@ -30,15 +33,33 @@ const Polls = () => {
             console.log("done handling vote..");
         }  
     };
+
+    const handleResults = async (appId) => {
+        await algodClient.status().do().then((value) => {
+            setCurrentRound(value[['last-round']]);
+        });
+        await retrieveEndTime(appId).then((value) => {
+            setEndTime(value);
+        });
+
+        console.log('current')
+        console.log(currentRound)
+        console.log('end time')
+        console.log(endTime)
+
+        if(currentRound > endTime){
+            retrieveVotes(appId).then((value) => {
+                setCurrentVotes(value);
+            });
+
+        }else{
+            alert('The voting process for the poll hasn\'t ended')
+        } 
+    };
     
-    const handleOpenPoll = (poll, index) => {
+    const handleOpenPoll = async (poll, index) => {
         setCurrentTitle(poll.title);
         setCurrentPoll(poll);
-        retrieveVotes(poll.appId).then((value) => {
-            setCurrentVotes(value);
-        });
-        console.log('aa')
-        console.log(currentVotes)
         const inputOptions = poll.options;
         const optionsData = inputOptions.split(",");
         setCurrentOptions(optionsData);
@@ -81,7 +102,7 @@ const Polls = () => {
                                 <Button variant="secondary" onClick={() => handleOpenPoll(poll, index)} key={index}>See more</Button>
                             </Card.Body>
                         </Card>
-	                )).reverse().slice(58)}
+	                )).reverse().slice(65)}
 	            </>
 	        </Row>
 
@@ -102,6 +123,7 @@ const Polls = () => {
                         appId={currentPoll.appId}
                         votes={currentVotes}
                         onOptionSelect={handleVote}
+                        showResults = {handleResults}
                         key={currentIndex}
                     />
                 </Modal.Body>

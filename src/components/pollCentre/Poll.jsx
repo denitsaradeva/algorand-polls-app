@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {Card, Col, Form, InputGroup, Button} from "react-bootstrap";
 
-const Poll = ({address, title, options, appId, votes, onOptionSelect}) => {
+const Poll = ({address, title, options, appId, votes, onOptionSelect, showResults}) => {
 
     const [selectedOption, setSelectedOption] = useState('');
 
@@ -13,7 +13,12 @@ const Poll = ({address, title, options, appId, votes, onOptionSelect}) => {
     const handleSubmit = (event) => {
         event.preventDefault();
         onOptionSelect(selectedOption, appId);
-      };
+    };
+
+    const handleResults = (event) => {
+        event.preventDefault();
+        showResults(appId);
+    };
 
     return (
         <Col>
@@ -39,6 +44,11 @@ const Poll = ({address, title, options, appId, votes, onOptionSelect}) => {
                 <Form onSubmit={handleSubmit}>
                     <Button variant="primary" type="submit">
                         Vote
+                    </Button>
+                </Form>
+                <Form onSubmit={handleResults}>
+                    <Button variant="primary" type="submit">
+                        Results
                     </Button>
                 </Form>
                 </Card.Footer>
