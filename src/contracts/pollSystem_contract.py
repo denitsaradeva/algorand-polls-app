@@ -6,6 +6,8 @@ class Poll:
         creator = Bytes("CREATOR")
         choice = Bytes("CHOICE")
         options = Bytes("OPTIONS")
+        begin = Bytes("StartVoting")
+        end = Bytes("EndVoting")
 
     class AppMethods:
         vote = Bytes("vote")
@@ -13,10 +15,12 @@ class Poll:
     def application_start(self):
     
         on_creation = Seq([
-            Assert(Txn.application_args.length() == Int(2)),
+            Assert(Txn.application_args.length() == Int(4)),
             Assert(Txn.note() == Bytes("polling-system:uv8")),
             App.globalPut(self.Variables.title, Txn.application_args[0]),
             App.globalPut(self.Variables.options, Txn.application_args[1]),
+            App.globalPut(self.Variables.begin, Btoi(Txn.application_args[2])),
+            App.globalPut(self.Variables.end, Btoi(Txn.application_args[3])),
             App.globalPut(self.Variables.creator, Txn.sender()),
             Approve()
         ])
@@ -44,6 +48,7 @@ class Poll:
         check_choice = If(choice_tally > Int(0), App.globalPut(choice, choice_tally + Int(1)), App.globalPut(choice, Int(1)))
         
         on_vote = Seq([
+            If((Global.round() > App.globalGet(Bytes("EndVoting"))), Return(Int(0))),
             get_vote_of_sender,
             If(get_vote_of_sender.hasValue(), Return(Int(0))),
             check_choice,

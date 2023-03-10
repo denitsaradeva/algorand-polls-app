@@ -81,7 +81,7 @@ const Polls = () => {
                                 <Button variant="secondary" onClick={() => handleOpenPoll(poll, index)} key={index}>See more</Button>
                             </Card.Body>
                         </Card>
-	                )).reverse().slice(34)}
+	                )).reverse().slice(58)}
 	            </>
 	        </Row>
 

@@ -142,8 +142,9 @@ export const retrieveVotes = async (appID) => {
     return voteCounts;
 }
 
-// export const removePoll = async (senderAddress, index) => {
-// }
+export const toBytes = (input) => {
+    return input.toString()
+}
 
 export const createNewPoll = async (senderAddress, pollTitle, pollOptions) => {
     console.log("Adding poll...")
@@ -159,7 +160,21 @@ export const createNewPoll = async (senderAddress, pollTitle, pollOptions) => {
     let title = new TextEncoder().encode(pollTitle);
     let options = new TextEncoder().encode(pollOptions);
 
+    let currentRound = await algodClient.status().do()
+    console.log(currentRound)
+    console.log("eee")
+    let VoteBegin = currentRound['last-round'] + 1
+    let VoteEnd = VoteBegin + 500
+
+    console.log(VoteBegin)
+    console.log(VoteEnd)
+
     let appArgs = [title, options]
+
+    console.log(appArgs.push(
+        new Uint8Array(Buffer.from(toBytes(VoteBegin))),
+        new Uint8Array(Buffer.from(toBytes(VoteEnd))),
+       ))
 
     let txn = algosdk.makeApplicationCreateTxnFromObject({
         from: senderAddress,

@@ -2,29 +2,34 @@
 txn ApplicationID
 int 0
 ==
-bnz main_l19
+bnz main_l21
 txn OnCompletion
 int DeleteApplication
 ==
-bnz main_l18
+bnz main_l20
 txn OnCompletion
 int UpdateApplication
 ==
-bnz main_l17
+bnz main_l19
 txn OnCompletion
 int CloseOut
 ==
-bnz main_l14
+bnz main_l16
 txn OnCompletion
 int OptIn
 ==
-bnz main_l13
+bnz main_l15
 txn OnCompletion
 int NoOp
 ==
 bnz main_l7
 err
 main_l7:
+global Round
+byte "EndVoting"
+app_global_get
+>
+bnz main_l14
 int 0
 global CurrentApplicationID
 byte "voted"
@@ -32,37 +37,40 @@ app_local_get_ex
 store 1
 store 0
 load 1
-bnz main_l12
+bnz main_l13
 txna ApplicationArgs 1
 app_global_get
 int 0
 >
-bnz main_l11
+bnz main_l12
 txna ApplicationArgs 1
 int 1
 app_global_put
-main_l10:
+main_l11:
 int 0
 byte "voted"
 txna ApplicationArgs 1
 app_local_put
 int 1
 return
-main_l11:
+main_l12:
 txna ApplicationArgs 1
 txna ApplicationArgs 1
 app_global_get
 int 1
 +
 app_global_put
-b main_l10
-main_l12:
+b main_l11
+main_l13:
 int 0
 return
-main_l13:
+main_l14:
+int 0
+return
+main_l15:
 int 1
 return
-main_l14:
+main_l16:
 int 0
 global CurrentApplicationID
 byte "voted"
@@ -70,33 +78,33 @@ app_local_get_ex
 store 1
 store 0
 load 1
-bnz main_l16
-main_l15:
+bnz main_l18
+main_l17:
 int 1
 return
-main_l16:
+main_l18:
 load 0
 load 0
 app_global_get
 int 1
 -
 app_global_put
-b main_l15
-main_l17:
-txn Sender
-byte "CREATOR"
-app_global_get
-==
-return
-main_l18:
-txn Sender
-byte "CREATOR"
-app_global_get
-==
-return
+b main_l17
 main_l19:
+txn Sender
+byte "CREATOR"
+app_global_get
+==
+return
+main_l20:
+txn Sender
+byte "CREATOR"
+app_global_get
+==
+return
+main_l21:
 txn NumAppArgs
-int 2
+int 4
 ==
 assert
 txn Note
@@ -108,6 +116,14 @@ txna ApplicationArgs 0
 app_global_put
 byte "OPTIONS"
 txna ApplicationArgs 1
+app_global_put
+byte "StartVoting"
+txna ApplicationArgs 2
+btoi
+app_global_put
+byte "EndVoting"
+txna ApplicationArgs 3
+btoi
 app_global_put
 byte "CREATOR"
 txn Sender
