@@ -2,16 +2,26 @@ import React, {useState} from "react";
 import {Button} from "react-bootstrap";
 import MyAlgoConnect from "@randlabs/myalgo-connect";
 import { Link } from 'react-router-dom';
+import {indexerClient} from "../utils/constants";
 
 const Home = () => {
 
     const [address, setAddress] = useState(null);
+    const [hasToken, setHasToken] = useState(false);
 
     const connectToMyAlgoWallet = async () => {
       try {
         const accounts = await new MyAlgoConnect().connect();
         const account = accounts[0];
-        setAddress(account.address);
+        
+        await indexerClient.lookupAccountAssets(account.address).do().then((jsonOutput) =>{
+            let assetValues = jsonOutput['assets'];
+            for (let i =0; i<assetValues.length; i++){
+                if(assetValues[i]['asset-id']===162841058){
+                    setAddress(account.address);
+                }
+            }
+        });
       } catch (e) {
         console.log('Problem while trying to connect to MyAlgo wallet');
         console.error(e);
