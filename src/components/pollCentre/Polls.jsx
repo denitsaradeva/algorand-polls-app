@@ -89,45 +89,56 @@ const Polls = () => {
 
 	return (
 	    <>
-	        <div className="d-flex justify-content-between align-items-center mb-4">
-	            <h1 className="fs-4 fw-bold mb-0">Polls</h1>
-	        </div>
+	        <div className="bg-success min-vh-100">
+                <h1 className="text-light display-3 text-center">{"Polls"}</h1>
 
-	        <Row xs={1} sm={2} lg={3} className="g-3 mb-5 g-xl-4 g-xxl-5">
-	            <>
-	                {allPolls.map((poll, index) => (
-                        <Card style={{ width: '18rem' }} key={index}>
-                            <Card.Body>
-                                <Card.Title>{poll.title}</Card.Title>
-                                <Button variant="secondary" onClick={() => handleOpenPoll(poll, index)} key={index}>See more</Button>
-                            </Card.Body>
-                        </Card>
-	                )).reverse().slice(65)}
-	            </>
-	        </Row>
+                <br></br>
 
-            <Link to={`/create?address=${address}`}>
-                <Button variant="primary" type="submit">Add a Poll</Button>
-            </Link>
+                <Row xs={1} sm={2} lg={3} >
+                    <>
+                        {allPolls.map((poll, index) => (
+                            <div>
+                                <Card class="card h-100" style={{ width: '18rem' }} key={index}>
+                                    <div class="card text-center">
+                                        <div class="card-header">
+                                            {poll.title}
+                                        </div>
+                                        <div class="card-body">
+                                            <Button variant="secondary" onClick={() => handleOpenPoll(poll, index)} key={index}>See more</Button>
+                                        </div>
+                                    </div>
+                                </Card>
+                            </div>
+                        )).reverse().slice(65)}
+                    </>
+                </Row>
+                
+                <div class="text-center px-3 mt-5">
+                    <Link to={`/create?address=${address}`}>
+                        <Button class="btn btn-dark rounded-pill btn-lg" type="submit">Add a Poll</Button>
+                    </Link>
+                </div>
 
-            <Modal show={showPoll} onHide={handleClosePoll}>
-                <Modal.Header closeButton>
-                    <Modal.Title></Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Poll
 
-                        address={address}
-                        title={currentTitle}
-                        options={currentOptions}
-                        appId={currentPoll.appId}
-                        votes={currentVotes}
-                        onOptionSelect={handleVote}
-                        showResults = {handleResults}
-                        key={currentIndex}
-                    />
-                </Modal.Body>
-            </Modal>
+                <Modal show={showPoll} onHide={handleClosePoll}>
+                    <Modal.Header closeButton>
+                        <Modal.Title></Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Poll
+
+                            address={address}
+                            title={currentTitle}
+                            options={currentOptions}
+                            appId={currentPoll.appId}
+                            votes={currentVotes}
+                            onOptionSelect={handleVote}
+                            showResults = {handleResults}
+                            key={currentIndex}
+                        />
+                    </Modal.Body>
+                </Modal>
+            </div>
 	    </>
 	);
 };

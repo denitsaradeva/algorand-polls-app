@@ -7,11 +7,18 @@ import {indexerClient} from "../utils/constants";
 const Home = () => {
 
     const [address, setAddress] = useState(null);
-    const [hasToken, setHasToken] = useState(false);
 
     const connectToMyAlgoWallet = async () => {
       try {
-        const accounts = await new MyAlgoConnect().connect();
+
+        const settings = {
+            shouldSelectOneAccount: true,
+            openManager: true
+        }; 
+
+        const accounts = await new MyAlgoConnect().connect(settings);
+        console.log('accounts')
+        console.log(accounts)
         const account = accounts[0];
         
         await indexerClient.lookupAccountAssets(account.address).do().then((jsonOutput) =>{
@@ -29,27 +36,27 @@ const Home = () => {
     };
 
     return (
-        <div className="d-flex justify-content-center flex-column text-center bg-black min-vh-100">
-            <div className=" text-light mb-5">
+        <div className="d-flex justify-content-center flex-column bg-success text-center min-vh-100">
+            <div className="  mb-5">
                 <div
                     // className=" ratio ratio-1x1 mx-auto mb-2"
                     style={{maxWidth: "320px"}}
                 >
                 </div>
-                <h1>{"Algo Polls"}</h1>
-                <p>Please connect your wallet to continue.</p>
-                <Button
+                <h1 className="text-light display-1">{"Algo Polls"}</h1>
+                {/* <p className="text-light">Please connect your wallet to continue.</p> */}
+                <Button type="button"
                     onClick={() => connectToMyAlgoWallet()}
                     // variant="outline-light"
-                    className="rounded-pill px-3 mt-3"
+                    className="btn btn-dark rounded-pill px-3 mt-3"
                 >
                     Connect Wallet
                 </Button>
                 {address && (
                     <Link to={`/polls?address=${address}`}>
-                        <Button
+                        <Button type="button"
                             // variant="outline-light"
-                            className="rounded-pill px-3 mt-3"
+                            className="btn btn-dark rounded-pill px-3 mt-3"
                         >
                             Go to Polls
                         </Button>

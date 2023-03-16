@@ -192,7 +192,7 @@ export const createNewPoll = async (senderAddress, pollTitle, pollOptions) => {
     console.log("ee1e")
     let lastRound = currentRound['last-round'];
     let VoteBegin = lastRound % 100000000;
-    let VoteEnd = (VoteBegin + 20);
+    let VoteEnd = (VoteBegin + 200);
 
     console.log(VoteBegin)
     console.log(VoteEnd)
