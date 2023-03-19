@@ -1,7 +1,7 @@
 import React, {useState} from "react";
-import {Card, Col, Form, InputGroup, Button} from "react-bootstrap";
+import {Card, Col, Form, InputGroup, Button, Row} from "react-bootstrap";
 
-const Poll = ({address, title, options, appId, votes, onOptionSelect, showResults}) => {
+const Poll = ({address, title, options, appId, votes, onOptionSelect, showResults, showResultsFlag}) => {
 
     const [selectedOption, setSelectedOption] = useState('');
 
@@ -27,30 +27,39 @@ const Poll = ({address, title, options, appId, votes, onOptionSelect, showResult
                     <Card.Title>{title}</Card.Title>
                 </Card.Header>
                 <Card.Body className="d-flex flex-column text-center">
-                {options.map((option) => (
-                    <InputGroup key={option}>
-                        <InputGroup.Radio
-                            name="radioOptions"
-                            aria-label={option}
-                            value={option}
-                            checked={selectedOption === option}
-                            onChange={handleChange}
-                        />
-                        <Form.Label>{option} - {votes[option]}</Form.Label>
-                    </InputGroup>
-                ))}
+                    {options.map((option) => (
+                        <InputGroup key={option}>
+                            <InputGroup.Radio
+                                name="radioOptions"
+                                aria-label={option}
+                                value={option}
+                                checked={selectedOption === option}
+                                onChange={handleChange}
+                            />  {option}
+                            {showResultsFlag && (
+                                <Form.Label> - {votes[option]}</Form.Label>
+                            )}
+                        </InputGroup>
+                    ))}
                 </Card.Body>
                 <Card.Footer>
-                <Form onSubmit={handleSubmit}>
-                    <Button variant="primary" type="submit">
-                        Vote
-                    </Button>
-                </Form>
-                <Form onSubmit={handleResults}>
-                    <Button variant="primary" type="submit">
-                        Results
-                    </Button>
-                </Form>
+                
+                <Row className="align-items-center">
+                    <Col xs="auto">
+                        <Form onSubmit={handleSubmit}>
+                            <Button variant="secondary" type="submit" className="btn btn-dark">
+                                Vote
+                            </Button>
+                        </Form>
+                    </Col>
+                    <Col xs="auto">
+                        <Form onSubmit={handleResults}>
+                            <Button variant="secondary" type="submit" className="btn btn-dark">
+                                Results
+                            </Button>
+                        </Form>
+                    </Col>
+                </Row>
                 </Card.Footer>
             </Card>
         </Col>

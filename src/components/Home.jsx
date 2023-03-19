@@ -52,6 +52,7 @@ const Home = () => {
                 >
                     Connect Wallet
                 </Button>
+                <br></br>
                 {address && (
                     <Link to={`/polls?address=${address}`}>
                         <Button type="button"

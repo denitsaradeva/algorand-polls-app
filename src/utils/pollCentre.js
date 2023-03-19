@@ -1,4 +1,3 @@
-/*global AlgoSigner*/
 import algosdk from "algosdk";
 import {
     indexerClient,
@@ -28,8 +27,7 @@ const userAccount =  algosdk.mnemonicToSecretKey("yellow find peace lion quote p
 
 export const getPolls = async () => {
     console.log("Fetching polls...");
-    let note = new TextEncoder().encode(marketplaceNote);
-
+    
     const address = "ITBD5TIB7DX5GKKBL4KRJH574ZVKUVQESBWZ6NOTNSLQBAD4Q2B7WSMNQY";
     let transactionInfo = await indexerClient.searchForTransactions({address}).address(address)
         .txType("appl")

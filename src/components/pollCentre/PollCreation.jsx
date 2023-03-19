@@ -13,6 +13,10 @@ const PollCreation = () => {
     const [options, setOptions] = useState([]);
     const navigate = useNavigate();
 
+    const [date, setDate] = useState(new Date());
+
+    console.log("DATE", date);
+
     const handleTitleChange = event => {
         setTitle(event.target.value);
     };
@@ -20,6 +24,11 @@ const PollCreation = () => {
     const handleOptionsChange = (event, index) => {
         const newOptions = [...options];
         newOptions[index] = event.target.value;
+        setOptions(newOptions);
+    };
+
+    const removeOption = (indexToRemove) => {
+        const newOptions = options.filter((option, index) => index !== indexToRemove);
         setOptions(newOptions);
     };
 
@@ -40,27 +49,46 @@ const PollCreation = () => {
     };
 
     return (
-        <div>
-            <h3>Poll Information</h3>
+        <div className="bg-success min-vh-100">
+            <h3 className="text-black display-3 text-center">Poll Information</h3>
             <Form onSubmit={handleSubmit}>
                 <div>
                     <Form.Label htmlFor="title">Title:</Form.Label>
                     <Form.Group className="mb-3" onChange={handleTitleChange} value={title} >
-                        <Form.Control placeholder="Title" />
+                        <Form.Control placeholder="Title" style={{width: "40%"}}/>
                     </Form.Group>
                 </div>
                 <div>
-                    <label htmlFor="options">Options:</label>
+                    <Form.Label htmlFor="options">Options:</Form.Label>
                     {options.map((option, index) => (
-                        <div key={index}>
-                            <Form.Control placeholder="Option" onChange={(e) => handleOptionsChange(e, index)} value={option} />
+                        <div key={index} style={{ display: 'flex', alignItems: 'center' }}>
+                            <Form.Control placeholder="Option" onChange={(e) => handleOptionsChange(e, index)} value={option} style={{width: "40%"}}/>
+                            <Button variant="secondary" onClick={() => removeOption(index)} className="remove-btn btn btn-dark">
+                                X
+                            </Button>
                         </div>
                     ))}
-                    <Button variant="secondary" type="button" onClick={addOption}>
+                    <br></br>
+                    <Button variant="secondary" className="btn btn-dark" type="button" onClick={addOption}>
                     Add Option
                     </Button>
                 </div>
-                <Button variant="primary" type="submit" onClick={handleSubmit}>
+                <br></br>
+                <div>
+                    <Form.Label htmlFor="duration">Duration:</Form.Label>
+                    <Form.Group controlId="duedate">
+                        <Form.Control
+                            type="date"
+                            name="duedate"
+                            placeholder="Due date"
+                            value={date}
+                            onChange={(e) => setDate(e.target.value)}
+                            style={{width: "40%"}}
+                        />
+                    </Form.Group>
+                </div>
+                <br></br>
+                <Button className="btn btn-dark rounded-pill btn-lg" variant="secondary" type="submit" onClick={handleSubmit}>
                     Create Poll
                 </Button>
             </Form>

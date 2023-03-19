@@ -20,6 +20,7 @@ const Polls = () => {
     const [endTime, setEndTime] = useState(0);
 
     const [currentPoll, setCurrentPoll] = useState('')
+    const [showResultsFl, setShowResultsFl] = useState(false);
 
     const handleVote = (choice, appId) => {
         if(choice !== ''){
@@ -50,6 +51,7 @@ const Polls = () => {
         if(currentRound > endTime){
             retrieveVotes(appId).then((value) => {
                 setCurrentVotes(value);
+                setShowResultsFl(true);
             });
 
         }else{
@@ -90,20 +92,20 @@ const Polls = () => {
 	return (
 	    <>
 	        <div className="bg-success min-vh-100">
-                <h1 className="text-light display-3 text-center">{"Polls"}</h1>
+                <h1 className="text-black display-3 text-center">{"Polls"}</h1>
 
                 <br></br>
 
                 <Row xs={1} sm={2} lg={3} >
                     <>
                         {allPolls.map((poll, index) => (
-                            <div>
-                                <Card class="card h-100" style={{ width: '18rem' }} key={index}>
-                                    <div class="card text-center">
-                                        <div class="card-header">
-                                            {poll.title}
+                            <div key={index}>
+                                <Card className="card h-100" style={{ width: '30rem' }} key={index}>
+                                    <div className="card text-center">
+                                        <div className="card-header">
+                                            <h3>{poll.title}</h3>
                                         </div>
-                                        <div class="card-body">
+                                        <div className="card-body">
                                             <Button variant="secondary" onClick={() => handleOpenPoll(poll, index)} key={index}>See more</Button>
                                         </div>
                                     </div>
@@ -113,9 +115,9 @@ const Polls = () => {
                     </>
                 </Row>
                 
-                <div class="text-center px-3 mt-5">
+                <div className="text-center px-3 mt-5">
                     <Link to={`/create?address=${address}`}>
-                        <Button class="btn btn-dark rounded-pill btn-lg" type="submit">Add a Poll</Button>
+                        <Button className="btn btn-dark rounded-pill btn-lg" type="submit">Add a Poll</Button>
                     </Link>
                 </div>
 
@@ -126,7 +128,6 @@ const Polls = () => {
                     </Modal.Header>
                     <Modal.Body>
                         <Poll
-
                             address={address}
                             title={currentTitle}
                             options={currentOptions}
@@ -134,6 +135,7 @@ const Polls = () => {
                             votes={currentVotes}
                             onOptionSelect={handleVote}
                             showResults = {handleResults}
+                            showResultsFlag = {showResultsFl}
                             key={currentIndex}
                         />
                     </Modal.Body>
