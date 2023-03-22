@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {Card, Col, Form, InputGroup, Button, Row} from "react-bootstrap";
 
-const Poll = ({address, options, appId, votes, onOptionSelect, showResults, showResultsFlag}) => {
+const PollInstance = ({address, options, endTime, appId, votes, onOptionSelect, showResults, showResultsFlag}) => {
 
     const [selectedOption, setSelectedOption] = useState('');
 
@@ -17,12 +17,24 @@ const Poll = ({address, options, appId, votes, onOptionSelect, showResults, show
 
     const handleResults = (event) => {
         event.preventDefault();
-        showResults(appId);
+        showResults(endTime, appId);
     };
+
+    const formatDate = (timestamp) => {
+        const date = new Date(timestamp * 1000);
+        const year = date.getFullYear();
+        const month = ("0" + (date.getMonth() + 1)).slice(-2);
+        const day = ("0" + date.getDate()).slice(-2);
+        const hours = ("0" + date.getHours()).slice(-2);
+        const minutes = ("0" + date.getMinutes()).slice(-2);
+        const formattedDate = `${day}/${month}/${year} ${hours}:${minutes}`;
+        return formattedDate;
+      }
 
     return (
         <Col>
             <Card className="h-100">
+                <Card.Header>End Time: {formatDate(endTime)}</Card.Header>
                 <Card.Body className="d-flex flex-column text-center">
                     {options.map((option) => (
                         <InputGroup key={option}>
@@ -63,4 +75,4 @@ const Poll = ({address, options, appId, votes, onOptionSelect, showResults, show
     );
 };
 
-export default Poll;
+export default PollInstance;

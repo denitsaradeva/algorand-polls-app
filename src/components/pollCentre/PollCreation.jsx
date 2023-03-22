@@ -1,23 +1,15 @@
 import React, {useState} from "react";
 import {Form, Button} from "react-bootstrap";
 import {createNewPoll} from "../../utils/pollCentre";
-import {useLocation, useNavigate} from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
-const PollCreation = () => {
-    const location = useLocation();
-    const searchParams = new URLSearchParams(location.search);
-    const address = searchParams.get('address');
-    console.log('Address:', address);
+const PollCreation = ({address, completedCreation}) => {
 
     const [title, setTitle] = useState('');
     const [options, setOptions] = useState([]);
-    const navigate = useNavigate();
 
     const [date, setDate] = useState(new Date());
-
-    console.log("DATE", date);
 
     const handleTitleChange = event => {
         setTitle(event.target.value);
@@ -38,10 +30,10 @@ const PollCreation = () => {
         setOptions([...options, ""]);
     };
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
+    const handleSubmit = () => {
         let result = options.join(",");
         createNewPoll(address, title, result, date)
+            .then((appId) => {completedCreation(address, title, result, date, appId)})
             .catch(error => {
                 console.log(error);
         });

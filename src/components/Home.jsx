@@ -1,12 +1,31 @@
 import React, {useState} from "react";
 import {Button} from "react-bootstrap";
 import MyAlgoConnect from "@randlabs/myalgo-connect";
+import {getPolls} from "../utils/pollCentre";
 import { Link } from 'react-router-dom';
 import {indexerClient} from "../utils/constants";
 
 const Home = () => {
 
     const [address, setAddress] = useState(null);
+    const [allPolls, setAllPolls] = useState([]);
+
+    const pollsData = {
+        polls: allPolls,
+        address: address
+    };
+
+    const getPollsUpdate = async () => {
+        getPolls()
+            .then(polls => {
+                if (polls) {
+                    setAllPolls(polls);
+                }
+            })
+            .catch(error => {
+                console.log(error);
+            })
+    };
 
     const connectToMyAlgoWallet = async () => {
       try {
@@ -26,6 +45,7 @@ const Home = () => {
             for (let i =0; i<assetValues.length; i++){
                 if(assetValues[i]['asset-id']===162841058){
                     setAddress(account.address);
+                    getPollsUpdate();
                 }
             }
         });
@@ -43,21 +63,22 @@ const Home = () => {
                     style={{maxWidth: "320px"}}
                 >
                 </div>
-                <h1 className="text-dark display-1">{"Algo Polls"}</h1>
+                <h1 className="text-light display-1">{"Algo Polls"}</h1>
                 {/* <p className="text-light">Please connect your wallet to continue.</p> */}
                 <Button type="button"
                     onClick={() => connectToMyAlgoWallet()}
                     // variant="outline-light"
-                    className="btn btn-dark rounded-pill px-3 mt-3"
+                    className="btn btn-light rounded-pill px-3 mt-3"
                 >
                     Connect Wallet
                 </Button>
                 <br></br>
                 {address && (
-                    <Link to={`/polls?address=${address}`}>
+                    <Link to='/polls' state= {pollsData}>
+                    {/* <Link to={`/polls?address=${address}`}> */}
                         <Button type="button"
                             // variant="outline-light"
-                            className="btn btn-dark rounded-pill px-3 mt-3"
+                            className="btn btn-light rounded-pill px-3 mt-3"
                         >
                             Go to Polls
                         </Button>

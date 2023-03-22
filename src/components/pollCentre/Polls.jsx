@@ -1,64 +1,65 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {algodClient} from "../../utils/constants";
-import Poll from "./Poll";
-import {getPolls, castVote, retrieveVotes, retrieveEndTime, Optin} from "../../utils/pollCentre";
-import {Row, Button, Modal, Card} from "react-bootstrap";
-import { Link, useLocation } from 'react-router-dom';
+import PollInstance from "./Poll";
+import Poll from "../../utils/pollCentre"
+import {castVote, retrieveVotes, Optin} from "../../utils/pollCentre";
+import {Button, Modal, Card} from "react-bootstrap";
+import { useLocation } from 'react-router-dom';
 import PollCreation from './PollCreation';
+import '../../App.css'
 
 const Polls = () => {
-    const [allPolls, setAllPolls] = useState([]);
+    let { state } = useLocation();
+
+    const [allPolls, setAllPolls] = useState(state.polls);
     const [showPoll, setShowPoll] = useState(false);
     const [showPollCreation, setShowPollCreation] = useState(false);
-    const location = useLocation();
-    const searchParams = new URLSearchParams(location.search);
-    const address = searchParams.get('address');
-
     const [currentTitle, setCurrentTitle] = useState('');
     const [currentOptions, setCurrentOptions] = useState([]);
+    const [currentEndTime, setCurrentEndTime] = useState(0);
     const [currentIndex, setCurrentIndex] = useState('');
     const [currentVotes, setCurrentVotes] = useState({});
     const [currentRound, setCurrentRound] = useState(0);
     const [globalLastRound, setGlobalLastRound] = useState(0);
-    const [endTime, setEndTime] = useState(0);
-
     const [currentPoll, setCurrentPoll] = useState('')
     const [showResultsFl, setShowResultsFl] = useState(false);
+
+    const address = state.address;
+
+    const completedCreation = async (address, title, result, date, appId) => {
+        let poll = new Poll(address, title, result, date, appId);
+        const newPolls = [{ poll }, ...allPolls];
+        setAllPolls(newPolls);
+        setShowPollCreation(false);
+    };
 
     const handleVote = async (choice, appId) => {
         if(choice !== ''){
             Optin(address, appId).then(() => {
                 castVote(address, choice, appId)
-                    .then(()=> getPollsUpdate())
                     .catch(error => {
                         console.log(error);
                 });
             });
             console.log("done handling vote..");
+        }else{
+            alert('You should select an option to vote for.')
         }  
     };
 
-    const handleResults = async (appId) => {
+    const handleResults = async (endTime, appId) => {
         await algodClient.status().do().then((value) => {
             console.log('valuee')
-            console.log(value)
+            console.log(value[['last-round']])
             setCurrentRound(value[['last-round']]);
+        }).then(async () =>{
+            await algodClient.block(currentRound).do().then((value) => {
+                console.log('ress')
+                console.log(value['block']['ts'])
+                setGlobalLastRound(value['block']['ts'])
+            });
         });
 
-        await algodClient.block(currentRound).do().then((value) => {
-            console.log('ress')
-            console.log(value['block']['ts'])
-            setGlobalLastRound(value['block']['ts'])
-        });
-
-        await retrieveEndTime(appId).then((value) => {
-            console.log('valueee')
-            console.log(value)
-            setEndTime(value);
-        });
-
-        console.log('current')
-        console.log(globalLastRound)
         console.log('end time')
         console.log(endTime)
 
@@ -76,9 +77,12 @@ const Polls = () => {
     const handleOpenPoll = async (poll, index) => {
         setCurrentTitle(poll.title);
         setCurrentPoll(poll);
-        const inputOptions = poll.options;
+        console.log('fs')
+        console.log(poll)
+        const inputOptions = poll.votingChoices;
         const optionsData = inputOptions.split(",");
         setCurrentOptions(optionsData);
+        setCurrentEndTime(poll.endTime)
         setCurrentIndex(index);
         setShowPoll(true);
     };
@@ -88,6 +92,8 @@ const Polls = () => {
     };
 
     const handleOpenPollCreation = async () => {
+        console.log('ds')
+        console.log(address)
         setShowPollCreation(true);
     };
     
@@ -95,79 +101,72 @@ const Polls = () => {
         setShowPollCreation(false);
     };
 
-    const getPollsUpdate = async () => {
-        getPolls()
-            .then(polls => {
-                if (polls) {
-                    setAllPolls(polls);
-                }
-            })
-            .catch(error => {
-                console.log(error);
-            })
-    };
-
-    useEffect(() => {
-        getPollsUpdate();
-    }, []);
-
 	return (
 	    <>
-	        <div className="bg-success min-vh-100">
+            <div className="container">
                 <h1 className="text-dark display-3 text-center">{"Polls"}</h1>
+            </div>
 
-                <br></br>
-
-                <Row xs={1} sm={2} lg={3} >
-                    <>
-                        {allPolls.map((poll, index) => (
-                            <div key={index}>
-                                <Card className="card h-100" style={{ width: '20rem' }} key={index}>
-                                    <div className="card text-center">
-                                        <div className="card-header">
+            <br></br>
+            
+            <div className="container">
+                <div className="row justify-content-center">
+                    <div class="col-md-6">
+                        <div className="parent-container">
+                            {allPolls.map((poll, index) => (
+                                <div className="col-md-3" key={index}>
+                                    <Card className="card" key={index}>
+                                    <div className="bg-success card text-center">
+                                        <div className="card-header" style={{height: '12em'}}>
                                             <h3>{poll.title}</h3>
                                         </div>
                                         <div className="card-body">
-                                            <Button variant="secondary" onClick={() => handleOpenPoll(poll, index)} key={index}>See more</Button>
+                                            <Button variant="dark" onClick={() => handleOpenPoll(poll, index)} key={index}>See more</Button>
                                         </div>
                                     </div>
-                                </Card>
-                            </div>
-                        )).reverse().slice(69)}
-                    </>
-                </Row>
-                
-                <div className="text-center px-3 mt-5">
-                    <Button className="btn btn-dark rounded-pill btn-lg"  onClick={() => handleOpenPollCreation()} type="submit">Add a Poll</Button>
+                                    </Card>
+                                    <br></br>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
-
-                <Modal show={showPollCreation} onHide={handleClosePollCreation}>
-                    <Modal.Header closeButton>
-                        <Modal.Title>Create a new poll</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <PollCreation></PollCreation>
-                    </Modal.Body>
-                </Modal>
-
-                <Modal show={showPoll} onHide={handleClosePoll}>
-                    <Modal.Header closeButton>
-                        <Modal.Title>{currentTitle}</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <Poll
-                            address={address}
-                            options={currentOptions}
-                            appId={currentPoll.appId}
-                            votes={currentVotes}
-                            onOptionSelect={handleVote}
-                            showResults = {handleResults}
-                            showResultsFlag = {showResultsFl}
-                            key={currentIndex}
-                        />
-                    </Modal.Body>
-                </Modal>
             </div>
+            
+            <div className="text-center px-3 mt-5">
+                <Button className="btn btn-dark rounded-pill btn-lg"  onClick={() => handleOpenPollCreation()} type="submit">Add a Poll</Button>
+            </div>
+
+            <Modal show={showPollCreation} onHide={handleClosePollCreation}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Create a new poll</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="bg-success">
+                    <PollCreation 
+                        address={address}
+                        completedCreation = {completedCreation}
+                    />
+                </Modal.Body>
+            </Modal>
+
+            <Modal show={showPoll} onHide={handleClosePoll}>
+                <Modal.Header closeButton>
+                    <Modal.Title>{currentTitle}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <PollInstance
+                        address={address}
+                        options={currentOptions}
+                        endTime={currentEndTime}
+                        appId={currentPoll.appId}
+                        votes={currentVotes}
+                        onOptionSelect={handleVote}
+                        showResults = {handleResults}
+                        showResultsFlag = {showResultsFl}
+                        key={currentIndex}
+                    />
+                </Modal.Body>
+            </Modal>
 	    </>
 	);
 };

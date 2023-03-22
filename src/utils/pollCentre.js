@@ -7,7 +7,8 @@ import {
     numGlobalBytes,
     numGlobalInts,
     numLocalBytes,
-    numLocalInts
+    numLocalInts,
+    minRound
 } from "./constants";
 /* eslint import/no-webpack-loader-syntax: off */
 import approvalProgram from "!!raw-loader!../contracts/pollSystem_approval.teal";
@@ -15,15 +16,14 @@ import clearProgram from "!!raw-loader!../contracts/pollSystem_clear.teal";
 import {base64ToUTF8String, utf8ToBase64String} from "./conversions";
 
 class Poll {
-    constructor(owner, title, options, appId) {
+    constructor(owner, title, votingChoices, endTime, appId) {
         this.title = title;
         this.owner = owner;
-        this.options = options;
+        this.votingChoices = votingChoices;
+        this.endTime = endTime;
         this.appId = appId
     }
 }
-
-const userAccount =  algosdk.mnemonicToSecretKey("yellow find peace lion quote phrase web lend horn cloud erupt cage kidney chunk curtain crisp film argue chunk stock crater mask entry above mosquito")
 
 export const getPolls = async () => {
     console.log("Fetching polls...");
@@ -31,19 +31,25 @@ export const getPolls = async () => {
     const address = "ITBD5TIB7DX5GKKBL4KRJH574ZVKUVQESBWZ6NOTNSLQBAD4Q2B7WSMNQY";
     let transactionInfo = await indexerClient.searchForTransactions({address}).address(address)
         .txType("appl")
+        .minRound(minRound)
         .do()
         .catch((err) => {
             console.error(err);
         });
 
+    console.log(transactionInfo);
+
     let polls = []
     for (const transaction of transactionInfo.transactions) {
         let appId = transaction["created-application-index"]
         if (appId) {
-            let poll = await getApplication(appId)
-            if (poll) {
-                polls.push(poll)
-            }
+            await getApplication(appId).then((result)=>{
+                if (result) {
+                    polls.push(result)
+                }
+            }).catch(error => {
+                console.log(error)
+            })
         }
     }
     console.log("Products fetched.")
@@ -64,10 +70,12 @@ export const Optin = async (senderAddress, appId) => {
     params.fee = 1000;
     params.flatFee = true;
 
+    console.log('ds')
+    console.log(senderAddress)
+    console.log(appId)
+
     let txn = algosdk.makeApplicationOptInTxn(senderAddress, params, appId);
     let txId = txn.txID().toString();
-    // let signedTxn = txn.signTxn(userAccount.sk);
-    // console.log("Signed transaction with txID: %s", txId);
 
     let signedTxn = await myAlgoConnect.signTransaction(txn.toByte());
     console.log("Signed transaction with txID: %s", txId);
@@ -96,14 +104,8 @@ export const castVote = async (senderAddress, choice, appId) => {
         let txn = algosdk.makeApplicationNoOpTxn(senderAddress, params, appId, appArgs)
 
         let txId = txn.txID().toString();
-       
-        // let signedTxn = txn.signTxn(userAccount.sk);
-        // console.log("Signed transaction with txID: %s", txId);
 
         let signedTxn = await myAlgoConnect.signTransaction(txn.toByte());
-        console.log("Signed transaction with txID: %s", txId);
-        console.log("creation")
-        console.log(signedTxn)
 
         await algodClient.sendRawTransaction(signedTxn.blob).do() 
 
@@ -120,35 +122,6 @@ export const castVote = async (senderAddress, choice, appId) => {
         if (transactionResponse['local-state-delta'] !== undefined ) {
             console.log("Local State updated:",transactionResponse['local-state-delta']);
         }
-}
-
-export const retrieveEndTime = async (appID) => {
-    console.log(appID)
-    let globalState = {}
-    try {
-        globalState = await algodClient.getApplicationByID(appID).do();
-        console.log(globalState);
-      } catch (error) {
-        console.error(error);
-      }
-      
-    let endTime = 0;
-    for (const entry of globalState['params']['global-state']) {
-        const key = base64ToUTF8String(entry['key']);
-        const value = entry['value']['uint'];
-        console.log('keyy')
-        console.log(key)
-        console.log('valuee')
-        console.log(value)
-        if (key === 'EndVoting') {
-            endTime = value;
-        }
-    }
-
-    console.log('end time')
-    console.log(endTime)
-
-    return endTime;
 }
 
 export const retrieveVotes = async (appID) => {
@@ -186,8 +159,8 @@ export const createNewPoll = async (senderAddress, pollTitle, pollOptions, durat
     console.log(duration)
 
 
-    const VoteEnd = Math.floor(duration.getTime() / 1000); // convert milliseconds to seconds
-    console.log(VoteEnd);
+    const voteEnd = Math.floor(duration.getTime() / 1000); // convert milliseconds to seconds
+    console.log(voteEnd);
 
     let params = await algodClient.getTransactionParams().do();
     params.fee = algosdk.ALGORAND_MIN_TX_FEE;
@@ -200,20 +173,11 @@ export const createNewPoll = async (senderAddress, pollTitle, pollOptions, durat
     let title = new TextEncoder().encode(pollTitle);
     let options = new TextEncoder().encode(pollOptions);
 
-    let currentRound = await algodClient.status().do()
-    console.log('current round')
-    console.log(currentRound)
-    let lastRound = currentRound['last-round'];
-    let VoteBegin = lastRound % 100000000;
-    // let VoteEnd = (VoteBegin + 200);
-
-    console.log(VoteBegin)
-    console.log(VoteEnd)
+    console.log(senderAddress)
 
     let appArgs = [title, options]
 
-    appArgs.push(algosdk.encodeUint64(VoteBegin))
-    appArgs.push(algosdk.encodeUint64(VoteEnd))
+    appArgs.push(algosdk.encodeUint64(voteEnd))
 
     let txn = algosdk.makeApplicationCreateTxnFromObject({
         from: senderAddress,
@@ -255,9 +219,7 @@ const getApplication = async (appId) => {
         }
         let globalState = response.application.params["global-state"]
 
-        let owner = response.application.params.creator
-        let title = ""
-        let options = ""
+        let owner = response.application.params.creator;
 
         const getField = (fieldName, globalState) => {
             return globalState.find(state => {
@@ -265,18 +227,38 @@ const getApplication = async (appId) => {
             })
         }
 
-        if (getField("TITLE", globalState) !== undefined) {
-            let field = getField("TITLE", globalState).value.bytes
+        // let title = base64ToUTF8String(response.application.params["global-state"].find(entry => entry.key === utf8ToBase64String("Title")).value.bytes);
+        // let votingChoices = base64ToUTF8String(response.application.params["global-state"].find(entry => entry.key === utf8ToBase64String("VotingChoices")).value.bytes);
+        // let endTime = base64ToUTF8String(response.application.params["global-state"].find(entry => entry.key === utf8ToBase64String("EndTime")).value.bytes);
+
+        // console.log('ee')
+        // console.log(title)
+        // console.log(votingChoices)
+        // console.log(endTime)
+
+        let title =''
+        let votingChoices=''
+        let endTime=''
+
+        if (getField("Title", globalState) !== undefined) {
+            let field = getField("Title", globalState).value.bytes
             title = base64ToUTF8String(field)
         }
 
-        if (getField("OPTIONS", globalState) !== undefined) {
-            let field = getField("OPTIONS", globalState).value.bytes
-            options = base64ToUTF8String(field)
+        if (getField("VotingChoices", globalState) !== undefined) {
+            let field = getField("VotingChoices", globalState).value.bytes
+            votingChoices = base64ToUTF8String(field)
         }
 
-        return new Poll(owner, title, options, appId)
+
+        if (getField("EndTime", globalState) !== undefined) {
+            endTime = getField("EndTime", globalState).value.uint
+        }
+
+        return new Poll(owner, title, votingChoices, endTime, appId)
     } catch (err) {
         return null;
     }
 }
+
+export default Poll;
