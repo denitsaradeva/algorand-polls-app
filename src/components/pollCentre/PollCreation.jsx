@@ -2,6 +2,8 @@ import React, {useState} from "react";
 import {Form, Button} from "react-bootstrap";
 import {createNewPoll} from "../../utils/pollCentre";
 import {useLocation, useNavigate} from 'react-router-dom';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 const PollCreation = () => {
     const location = useLocation();
@@ -39,60 +41,54 @@ const PollCreation = () => {
     const handleSubmit = (event) => {
         event.preventDefault();
         let result = options.join(",");
-        createNewPoll(address, title, result)
-            .then(() => {
-                navigate(-1);
-            })
+        createNewPoll(address, title, result, date)
             .catch(error => {
                 console.log(error);
         });
     };
 
     return (
-        <div className="bg-success min-vh-100">
-            <h3 className="text-black display-3 text-center">Poll Information</h3>
-            <Form onSubmit={handleSubmit}>
-                <div>
-                    <Form.Label htmlFor="title">Title:</Form.Label>
-                    <Form.Group className="mb-3" onChange={handleTitleChange} value={title} >
-                        <Form.Control placeholder="Title" style={{width: "40%"}}/>
-                    </Form.Group>
-                </div>
-                <div>
-                    <Form.Label htmlFor="options">Options:</Form.Label>
-                    {options.map((option, index) => (
+        <div>
+            <Form.Control placeholder="Title" onChange={handleTitleChange} value={title}/>
+
+            <br></br>
+
+            <div>
+                {options.map((option, index) => (
+                    <div>
                         <div key={index} style={{ display: 'flex', alignItems: 'center' }}>
-                            <Form.Control placeholder="Option" onChange={(e) => handleOptionsChange(e, index)} value={option} style={{width: "40%"}}/>
+                            <Form.Control placeholder="Option" onChange={(e) => handleOptionsChange(e, index)} value={option}/>
                             <Button variant="secondary" onClick={() => removeOption(index)} className="remove-btn btn btn-dark">
                                 X
                             </Button>
                         </div>
-                    ))}
-                    <br></br>
-                    <Button variant="secondary" className="btn btn-dark" type="button" onClick={addOption}>
+                        <br></br>
+                    </div>
+                ))}
+                <Button variant="secondary" type="submit" className="btn btn-dark" onClick={addOption}>
                     Add Option
-                    </Button>
-                </div>
-                <br></br>
-                <div>
-                    <Form.Label htmlFor="duration">Duration:</Form.Label>
-                    <Form.Group controlId="duedate">
-                        <Form.Control
-                            type="date"
-                            name="duedate"
-                            placeholder="Due date"
-                            value={date}
-                            onChange={(e) => setDate(e.target.value)}
-                            style={{width: "40%"}}
-                        />
-                    </Form.Group>
-                </div>
-                <br></br>
-                <Button className="btn btn-dark rounded-pill btn-lg" variant="secondary" type="submit" onClick={handleSubmit}>
-                    Create Poll
                 </Button>
-            </Form>
+            </div>
+
+            <br></br>
+
+            <div>
+                <DatePicker
+                    selected={date}
+                    onChange={setDate}
+                    showTimeSelect
+                    timeFormat="HH:mm:ss.SSS"
+                    dateFormat="MM/dd/yyyy h:mm:ss"
+                />
+            </div>
+
+            <br></br>
+            
+            <Button className="btn btn-dark rounded-pill btn-lg" variant="secondary" type="submit" onClick={handleSubmit}>
+                Create Poll
+            </Button>
         </div>
+        
     );
 };
 

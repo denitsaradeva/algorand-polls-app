@@ -48,7 +48,7 @@ class Poll:
         check_choice = If(choice_tally > Int(0), App.globalPut(choice, choice_tally + Int(1)), App.globalPut(choice, Int(1)))
         
         on_vote = Seq([
-            If((Global.round() > App.globalGet(Bytes("EndVoting"))), Return(Int(0))),
+            If((Global.latest_timestamp() > App.globalGet(Bytes("EndVoting"))), Return(Int(0))),
             get_vote_of_sender,
             If(get_vote_of_sender.hasValue(), Return(Int(0))),
             check_choice,

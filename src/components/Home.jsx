@@ -43,7 +43,7 @@ const Home = () => {
                     style={{maxWidth: "320px"}}
                 >
                 </div>
-                <h1 className="text-light display-1">{"Algo Polls"}</h1>
+                <h1 className="text-dark display-1">{"Algo Polls"}</h1>
                 {/* <p className="text-light">Please connect your wallet to continue.</p> */}
                 <Button type="button"
                     onClick={() => connectToMyAlgoWallet()}

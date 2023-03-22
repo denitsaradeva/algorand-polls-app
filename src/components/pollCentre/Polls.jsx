@@ -4,10 +4,12 @@ import Poll from "./Poll";
 import {getPolls, castVote, retrieveVotes, retrieveEndTime, Optin} from "../../utils/pollCentre";
 import {Row, Button, Modal, Card} from "react-bootstrap";
 import { Link, useLocation } from 'react-router-dom';
+import PollCreation from './PollCreation';
 
 const Polls = () => {
     const [allPolls, setAllPolls] = useState([]);
     const [showPoll, setShowPoll] = useState(false);
+    const [showPollCreation, setShowPollCreation] = useState(false);
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
     const address = searchParams.get('address');
@@ -17,12 +19,13 @@ const Polls = () => {
     const [currentIndex, setCurrentIndex] = useState('');
     const [currentVotes, setCurrentVotes] = useState({});
     const [currentRound, setCurrentRound] = useState(0);
+    const [globalLastRound, setGlobalLastRound] = useState(0);
     const [endTime, setEndTime] = useState(0);
 
     const [currentPoll, setCurrentPoll] = useState('')
     const [showResultsFl, setShowResultsFl] = useState(false);
 
-    const handleVote = (choice, appId) => {
+    const handleVote = async (choice, appId) => {
         if(choice !== ''){
             Optin(address, appId).then(() => {
                 castVote(address, choice, appId)
@@ -37,18 +40,29 @@ const Polls = () => {
 
     const handleResults = async (appId) => {
         await algodClient.status().do().then((value) => {
+            console.log('valuee')
+            console.log(value)
             setCurrentRound(value[['last-round']]);
         });
+
+        await algodClient.block(currentRound).do().then((value) => {
+            console.log('ress')
+            console.log(value['block']['ts'])
+            setGlobalLastRound(value['block']['ts'])
+        });
+
         await retrieveEndTime(appId).then((value) => {
+            console.log('valueee')
+            console.log(value)
             setEndTime(value);
         });
 
         console.log('current')
-        console.log(currentRound)
+        console.log(globalLastRound)
         console.log('end time')
         console.log(endTime)
 
-        if(currentRound > endTime){
+        if(globalLastRound > endTime){
             retrieveVotes(appId).then((value) => {
                 setCurrentVotes(value);
                 setShowResultsFl(true);
@@ -73,6 +87,14 @@ const Polls = () => {
         setShowPoll(false);
     };
 
+    const handleOpenPollCreation = async () => {
+        setShowPollCreation(true);
+    };
+    
+    const handleClosePollCreation = () => {
+        setShowPollCreation(false);
+    };
+
     const getPollsUpdate = async () => {
         getPolls()
             .then(polls => {
@@ -92,7 +114,7 @@ const Polls = () => {
 	return (
 	    <>
 	        <div className="bg-success min-vh-100">
-                <h1 className="text-black display-3 text-center">{"Polls"}</h1>
+                <h1 className="text-dark display-3 text-center">{"Polls"}</h1>
 
                 <br></br>
 
@@ -100,7 +122,7 @@ const Polls = () => {
                     <>
                         {allPolls.map((poll, index) => (
                             <div key={index}>
-                                <Card className="card h-100" style={{ width: '30rem' }} key={index}>
+                                <Card className="card h-100" style={{ width: '20rem' }} key={index}>
                                     <div className="card text-center">
                                         <div className="card-header">
                                             <h3>{poll.title}</h3>
@@ -111,25 +133,30 @@ const Polls = () => {
                                     </div>
                                 </Card>
                             </div>
-                        )).reverse().slice(65)}
+                        )).reverse().slice(69)}
                     </>
                 </Row>
                 
                 <div className="text-center px-3 mt-5">
-                    <Link to={`/create?address=${address}`}>
-                        <Button className="btn btn-dark rounded-pill btn-lg" type="submit">Add a Poll</Button>
-                    </Link>
+                    <Button className="btn btn-dark rounded-pill btn-lg"  onClick={() => handleOpenPollCreation()} type="submit">Add a Poll</Button>
                 </div>
 
+                <Modal show={showPollCreation} onHide={handleClosePollCreation}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Create a new poll</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <PollCreation></PollCreation>
+                    </Modal.Body>
+                </Modal>
 
                 <Modal show={showPoll} onHide={handleClosePoll}>
                     <Modal.Header closeButton>
-                        <Modal.Title></Modal.Title>
+                        <Modal.Title>{currentTitle}</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         <Poll
                             address={address}
-                            title={currentTitle}
                             options={currentOptions}
                             appId={currentPoll.appId}
                             votes={currentVotes}

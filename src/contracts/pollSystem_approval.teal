@@ -25,7 +25,7 @@ int NoOp
 bnz main_l7
 err
 main_l7:
-global Round
+global LatestTimestamp
 byte "EndVoting"
 app_global_get
 >

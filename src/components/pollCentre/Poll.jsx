@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {Card, Col, Form, InputGroup, Button, Row} from "react-bootstrap";
 
-const Poll = ({address, title, options, appId, votes, onOptionSelect, showResults, showResultsFlag}) => {
+const Poll = ({address, options, appId, votes, onOptionSelect, showResults, showResultsFlag}) => {
 
     const [selectedOption, setSelectedOption] = useState('');
 
@@ -23,9 +23,6 @@ const Poll = ({address, title, options, appId, votes, onOptionSelect, showResult
     return (
         <Col>
             <Card className="h-100">
-                <Card.Header>
-                    <Card.Title>{title}</Card.Title>
-                </Card.Header>
                 <Card.Body className="d-flex flex-column text-center">
                     {options.map((option) => (
                         <InputGroup key={option}>
