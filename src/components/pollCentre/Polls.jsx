@@ -1,9 +1,9 @@
 import React, {useState} from "react";
 import {algodClient} from "../../utils/constants";
-import PollInstance from "./Poll";
+import PollInstance from "./PollInstance";
 import Poll from "../../utils/pollCentre"
 import {castVote, retrieveVotes, Optin} from "../../utils/pollCentre";
-import {Button, Modal, Card} from "react-bootstrap";
+import {Button, Modal, Card, ModalDialog, ModalBody} from "react-bootstrap";
 import { useLocation } from 'react-router-dom';
 import PollCreation from './PollCreation';
 import '../../App.css'
@@ -23,6 +23,8 @@ const Polls = () => {
     const [globalLastRound, setGlobalLastRound] = useState(0);
     const [currentPoll, setCurrentPoll] = useState('')
     const [showResultsFl, setShowResultsFl] = useState(false);
+
+    console.log(allPolls)
 
     const address = state.address;
 
@@ -101,47 +103,48 @@ const Polls = () => {
         setShowPollCreation(false);
     };
 
-	return (
-	    <>
-            <div className="container">
-                <h1 className="text-dark display-3 text-center">{"Polls"}</h1>
-            </div>
+    const formatDate = (timestamp) => {
+        const date = new Date(timestamp * 1000);
+        const year = date.getFullYear();
+        const month = ("0" + (date.getMonth() + 1)).slice(-2);
+        const day = ("0" + date.getDate()).slice(-2);
+        const hours = ("0" + date.getHours()).slice(-2);
+        const minutes = ("0" + date.getMinutes()).slice(-2);
+        const formattedDate = `${day}/${month}/${year} ${hours}:${minutes}`;
+        return formattedDate;
+    };
 
+	return (
+        <div className="polls">
+            <h1 className="text-dark display-3 text-center">{"Polls"}</h1>
             <br></br>
-            
-            <div className="container">
-                <div className="row justify-content-center">
-                    <div class="col-md-6">
-                        <div className="parent-container">
-                            {allPolls.map((poll, index) => (
-                                <div className="col-md-3" key={index}>
-                                    <Card className="card" key={index}>
-                                    <div className="bg-success card text-center">
-                                        <div className="card-header" style={{height: '12em'}}>
-                                            <h3>{poll.title}</h3>
-                                        </div>
-                                        <div className="card-body">
-                                            <Button variant="dark" onClick={() => handleOpenPoll(poll, index)} key={index}>See more</Button>
-                                        </div>
-                                    </div>
-                                    </Card>
-                                    <br></br>
+            <div className="row justify-content-center card-padding">
+                {allPolls.map((poll, index) => (
+                    <div className="col-md-2 mb-3" key={index}>
+                        <Card key={index}>
+                            <div className="card text-center">
+                                <div className="card-header poll-body" style={{height: '7em'}}>
+                                    <h3>{poll.title}</h3>
                                 </div>
-                            ))}
-                        </div>
+                                <div className="card-body poll-footer">
+                                    <Button type="button" className="btn btn-light" onClick={() => handleOpenPoll(poll, index)} key={index}>See more</Button>
+                                </div>
+                            </div>
+                        </Card>
+                        <br></br>
                     </div>
+                ))}
+
+                <div className="text-center">
+                    <Button className="btn btn-primary rounded-pill btn-lg"  onClick={() => handleOpenPollCreation()} type="submit">Add a Poll</Button>
                 </div>
-            </div>
-            
-            <div className="text-center px-3 mt-5">
-                <Button className="btn btn-dark rounded-pill btn-lg"  onClick={() => handleOpenPollCreation()} type="submit">Add a Poll</Button>
             </div>
 
             <Modal show={showPollCreation} onHide={handleClosePollCreation}>
                 <Modal.Header closeButton>
                     <Modal.Title>Create a new poll</Modal.Title>
                 </Modal.Header>
-                <Modal.Body className="bg-success">
+                <Modal.Body className="poll-body">
                     <PollCreation 
                         address={address}
                         completedCreation = {completedCreation}
@@ -152,6 +155,7 @@ const Polls = () => {
             <Modal show={showPoll} onHide={handleClosePoll}>
                 <Modal.Header closeButton>
                     <Modal.Title>{currentTitle}</Modal.Title>
+                    <ModalBody>Ends on {formatDate(currentEndTime)}</ModalBody>
                 </Modal.Header>
                 <Modal.Body>
                     <PollInstance
@@ -167,7 +171,7 @@ const Polls = () => {
                     />
                 </Modal.Body>
             </Modal>
-	    </>
+        </div>
 	);
 };
 

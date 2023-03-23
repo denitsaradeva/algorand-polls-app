@@ -41,3 +41,44 @@
   display: flex;
   flex-wrap: wrap;
 }
+
+.polls {
+  height: 100vh;
+}
+
+.card-padding {
+  padding-left: 3em;
+  padding-right: 3em;
+}
+
+.poll-body {
+  background-color: #e5e5e5 !important;
+  /* color: #14213d !important; */
+  /* color: #fca311; */
+}
+
+.poll-footer {
+  background-color: #14213d;
+}
+
+.poll-button {
+  background-color: #e5e5e5;
+}
+
+.poll-title{
+  color: #14213d;
+}
+
+.progress-bar {
+  width: 63%; 
+  display: flex;
+}
+
+.flexx {
+  display:flex;
+}
+
+.childFlex{
+  display:inline-block;
+}
+

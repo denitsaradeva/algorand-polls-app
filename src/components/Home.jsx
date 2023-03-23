@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import {Button} from "react-bootstrap";
 import MyAlgoConnect from "@randlabs/myalgo-connect";
 import {getPolls} from "../utils/pollCentre";
@@ -26,6 +26,13 @@ const Home = () => {
                 console.log(error);
             })
     };
+
+    useEffect(() => {
+        // myFunction();
+        return () => {
+          setAllPolls(allPolls); // This worked for me
+        };
+    }, []);
 
     const connectToMyAlgoWallet = async () => {
       try {
@@ -56,7 +63,7 @@ const Home = () => {
     };
 
     return (
-        <div className="d-flex justify-content-center flex-column bg-success text-center min-vh-100">
+        <div className="d-flex justify-content-center flex-column poll-footer text-center min-vh-100">
             <div className="  mb-5">
                 <div
                     // className=" ratio ratio-1x1 mx-auto mb-2"
