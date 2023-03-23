@@ -23,30 +23,41 @@ const Polls = () => {
     const [globalLastRound, setGlobalLastRound] = useState(0);
     const [currentPoll, setCurrentPoll] = useState('')
     const [showResultsFl, setShowResultsFl] = useState(false);
+    const [optedIn, setOptedIn] = useState(false);
 
     console.log(allPolls)
 
     const address = state.address;
 
-    const completedCreation = async (address, title, result, date, appId) => {
-        let poll = new Poll(address, title, result, date, appId);
-        const newPolls = [{ poll }, ...allPolls];
+    const completedCreation = async (address, titleName, result, date, appId) => {
+        let newDate = Math.floor(date.getTime() / 1000);
+        const newPolls = [{ title: titleName, owner: address, votingChoices: result, endTime: newDate, appId: appId }, ...allPolls];
         setAllPolls(newPolls);
         setShowPollCreation(false);
     };
 
     const handleVote = async (choice, appId) => {
-        if(choice !== ''){
-            Optin(address, appId).then(() => {
-                castVote(address, choice, appId)
+        if(choice !== '' && optedIn){
+           castVote(address, choice, appId)
                     .catch(error => {
                         console.log(error);
                 });
-            });
             console.log("done handling vote..");
-        }else{
+        }else if(optedIn){
             alert('You should select an option to vote for.')
-        }  
+        }else{
+            alert('You should opt in.')
+        }
+
+        //optin shouldn't be local var --> todo
+    };
+
+    const handleOptIn = async (appId) => {
+        Optin(address, appId).then(() => {
+           setOptedIn(true); 
+        }).catch((error)=>{
+            console.log(error);
+        });
     };
 
     const handleResults = async (endTime, appId) => {
@@ -167,6 +178,7 @@ const Polls = () => {
                         onOptionSelect={handleVote}
                         showResults = {handleResults}
                         showResultsFlag = {showResultsFl}
+                        optIn = {handleOptIn}
                         key={currentIndex}
                     />
                 </Modal.Body>

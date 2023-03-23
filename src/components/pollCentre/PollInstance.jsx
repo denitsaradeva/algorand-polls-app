@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import {Card, Col, Form, InputGroup, Button, Row} from "react-bootstrap";
 import { RadioButton } from 'primereact/radiobutton';
 
-const PollInstance = ({address, options, endTime, appId, votes, onOptionSelect, showResults, showResultsFlag}) => {
+const PollInstance = ({address, options, endTime, appId, votes, onOptionSelect, showResults, showResultsFlag, optIn}) => {
 
     const [selectedOption, setSelectedOption] = useState('');
 
@@ -20,6 +20,11 @@ const PollInstance = ({address, options, endTime, appId, votes, onOptionSelect, 
     const handleResults = (event) => {
         event.preventDefault();
         showResults(endTime, appId);
+    };
+
+    const handleOptIn = (event) => {
+        event.preventDefault();
+        optIn(appId);
     };
 
     return (
@@ -51,6 +56,13 @@ const PollInstance = ({address, options, endTime, appId, votes, onOptionSelect, 
                     <Form onSubmit={handleSubmit}>
                         <Button variant="secondary" type="submit" className="btn btn-dark">
                             Vote
+                        </Button>
+                    </Form>
+                </Col>
+                <Col xs="auto">
+                    <Form onSubmit={handleOptIn}>
+                        <Button variant="secondary" type="submit" className="btn btn-dark">
+                            Opt In
                         </Button>
                     </Form>
                 </Col>
