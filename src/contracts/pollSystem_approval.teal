@@ -22,7 +22,7 @@ bnz main_l6
 err
 main_l6:
 global LatestTimestamp
-byte "EndVoting"
+byte "EndTime"
 app_global_get
 >
 bnz main_l13

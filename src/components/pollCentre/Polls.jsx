@@ -62,27 +62,18 @@ const Polls = () => {
     };
 
     const handleResults = async (endTime, appId) => {
-        await algodClient.status().do().then((value) => {
-            console.log('valuee')
-            console.log(value[['last-round']])
-            setCurrentRound(value[['last-round']]);
-        }).then(async () =>{
-            await algodClient.block(currentRound).do().then((value) => {
-                console.log('ress')
-                console.log(value['block']['ts'])
-                setGlobalLastRound(value['block']['ts'])
-            });
-        });
+        const status = await algodClient.status().do();
+        setCurrentRound(status[['last-round']]);
 
-        console.log('end time')
-        console.log(endTime)
+        const block = await algodClient.block(status['last-round']).do();
+        console.log('ress');
+        console.log(block['block']['ts']);
+        setGlobalLastRound(block['block']['ts']);
 
         if(globalLastRound > endTime){
-            retrieveVotes(appId).then((value) => {
-                setCurrentVotes(value);
-                setShowResultsFl(true);
-            });
-
+            const votes = await retrieveVotes(appId);
+            setCurrentVotes(votes);
+            setShowResultsFl(true);
         }else{
             alert('The voting process for the poll hasn\'t ended')
         } 

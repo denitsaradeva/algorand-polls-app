@@ -99,7 +99,12 @@ export const castVote = async (senderAddress, choice, appId) => {
         new Uint8Array(Buffer.from(vote)),
         new Uint8Array(Buffer.from(choice)),
         )
+
+        console.log(vote)
+        console.log(choice)
         let params = await algodClient.getTransactionParams().do()
+        params.fee = 1000;
+        params.flatFee = true;
         
         let txn = algosdk.makeApplicationNoOpTxn(senderAddress, params, appId, appArgs)
 
