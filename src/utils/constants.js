@@ -16,7 +16,7 @@ export const indexerClient = new algosdk.Indexer(config.indexerToken, config.ind
 
 export const myAlgoConnect = new MyAlgoConnect();
 
-export const minRound = 28597900;
+export const minRound = 28626900;
 
 // https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0002.md
 export const marketplaceNote = "polling-system:uv8"

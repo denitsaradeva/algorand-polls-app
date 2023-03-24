@@ -47,7 +47,7 @@ const PollCreation = ({address, completedCreation}) => {
 
             <div>
                 {options.map((option, index) => (
-                    <div>
+                    <div key={index}>
                         <div key={index} style={{ display: 'flex', alignItems: 'center' }}>
                             <Form.Control placeholder="Option" onChange={(e) => handleOptionsChange(e, index)} value={option}/>
                             <Button variant="secondary" onClick={() => removeOption(index)} className="remove-btn btn btn-dark">

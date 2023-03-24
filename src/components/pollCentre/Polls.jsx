@@ -37,17 +37,18 @@ const Polls = () => {
     };
 
     const handleVote = async (choice, appId) => {
-        if(choice !== '' && optedIn){
+        if(choice !== ''){
            castVote(address, choice, appId)
                     .catch(error => {
                         console.log(error);
                 });
             console.log("done handling vote..");
-        }else if(optedIn){
-            alert('You should select an option to vote for.')
         }else{
-            alert('You should opt in.')
+            alert('You should select an option to vote for.')
         }
+        // else{
+        //     alert('You should opt in.')
+        // }
 
         //optin shouldn't be local var --> todo
     };

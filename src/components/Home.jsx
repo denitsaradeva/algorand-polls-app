@@ -15,11 +15,12 @@ const Home = () => {
         address: address
     };
 
-    const getPollsUpdate = async () => {
+    const getPollsUpdate = async (account) => {
         getPolls()
             .then(polls => {
                 if (polls) {
                     setAllPolls(polls);
+                    setAddress(account.address);
                 }
             })
             .catch(error => {
@@ -47,12 +48,13 @@ const Home = () => {
         console.log(accounts)
         const account = accounts[0];
         
-        await indexerClient.lookupAccountAssets(account.address).do().then((jsonOutput) =>{
+        await indexerClient.lookupAccountAssets(account.address).do().then(async (jsonOutput) =>{
             let assetValues = jsonOutput['assets'];
             for (let i =0; i<assetValues.length; i++){
                 if(assetValues[i]['asset-id']===162841058){
-                    setAddress(account.address);
-                    getPollsUpdate();
+                    await getPollsUpdate(account).catch ((error) => {
+                        console.log(error);
+                    });
                 }
             }
         });
