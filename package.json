@@ -11,6 +11,8 @@
     "bignumber.js": "^9.1.1",
     "bootstrap": "^5.2.3",
     "bootstrap-icons": "^1.10.3",
+    "chart.js": "^3.0.0",
+    "primeflex": "^3.3.0",
     "primeicons": "^6.0.1",
     "primereact": "^9.2.1",
     "prop-types": "^15.8.1",
@@ -51,6 +53,8 @@
     ]
   },
   "devDependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.18.6",
+    "@babel/polyfill": "^7.12.1",
     "raw-loader": "^4.0.2"
   }
 }

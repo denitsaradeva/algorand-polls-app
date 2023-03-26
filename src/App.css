@@ -53,8 +53,6 @@
 
 .poll-body {
   background-color: #e5e5e5 !important;
-  /* color: #14213d !important; */
-  /* color: #fca311; */
 }
 
 .poll-footer {
@@ -82,3 +80,9 @@
   display:inline-block;
 }
 
+.card1 {
+  background: var(--surface-card);
+  padding: 2rem;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+}

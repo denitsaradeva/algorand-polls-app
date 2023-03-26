@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import {algodClient} from "../../utils/constants";
 import PollInstance from "./PollInstance";
 import Poll from "../../utils/pollCentre"
@@ -6,6 +6,7 @@ import {castVote, retrieveVotes, Optin} from "../../utils/pollCentre";
 import {Button, Modal, Card, ModalDialog, ModalBody} from "react-bootstrap";
 import { useLocation } from 'react-router-dom';
 import PollCreation from './PollCreation';
+import {getPolls} from "../../utils/pollCentre";
 import '../../App.css'
 
 const Polls = () => {
@@ -24,6 +25,7 @@ const Polls = () => {
     const [currentPoll, setCurrentPoll] = useState('')
     const [showResultsFl, setShowResultsFl] = useState(false);
     const [optedIn, setOptedIn] = useState(false);
+    const [maxVotes, setMaxVotes] = useState(100);
 
     console.log(allPolls)
 
@@ -63,17 +65,28 @@ const Polls = () => {
 
     const handleResults = async (endTime, appId) => {
         const status = await algodClient.status().do();
-        setCurrentRound(status[['last-round']]);
+        // console.log('status')
+        // console.log(status)
+        // const lastRound = status['last-round'];
 
         const block = await algodClient.block(status['last-round']).do();
+        const currentRound = block['block']['ts'];
         console.log('ress');
-        console.log(block['block']['ts']);
-        setGlobalLastRound(block['block']['ts']);
+        console.log(currentRound);
 
-        if(globalLastRound > endTime){
+        console.log('curr')
+        console.log(endTime)
+        console.log(parseInt(currentRound) > parseInt(endTime))
+
+        if(parseInt(currentRound) > parseInt(endTime)){
             const votes = await retrieveVotes(appId);
             setCurrentVotes(votes);
             setShowResultsFl(true);
+            const filteredEntries = Object.entries(votes).filter(([key, value]) => 
+                key !== "VotingChoices" && key !== "Title" && key !== "EndTime" && key !== "Creator"
+            );
+            const maxVote = Math.max(...filteredEntries.map(([key, value]) => value));
+            setMaxVotes(maxVote);
         }else{
             alert('The voting process for the poll hasn\'t ended')
         } 
@@ -115,6 +128,23 @@ const Polls = () => {
         const minutes = ("0" + date.getMinutes()).slice(-2);
         const formattedDate = `${day}/${month}/${year} ${hours}:${minutes}`;
         return formattedDate;
+    };
+
+    useEffect(() => {
+        getPollsUpdate();
+        console.log('Page refreshed!');
+    }, []);
+
+    const getPollsUpdate = async () => {
+        getPolls()
+            .then(polls => {
+                if (polls) {
+                    setAllPolls(polls);
+                }
+            })
+            .catch(error => {
+                console.log(error);
+            })
     };
 
 	return (
@@ -172,6 +202,7 @@ const Polls = () => {
                         showResultsFlag = {showResultsFl}
                         optIn = {handleOptIn}
                         key={currentIndex}
+                        valueTemplate={maxVotes}
                     />
                 </Modal.Body>
             </Modal>
