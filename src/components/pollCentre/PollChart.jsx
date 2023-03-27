@@ -34,10 +34,13 @@ const PollChart = ({votes, options}) => {
                     label: 'Votes',
                     data: Object.values(optionVotesMap),
                     backgroundColor: [
-                        'rgba(255, 159, 64, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(153, 102, 255, 0.2)'
+                        'rgb(220,20,60)',
+                        'rgb(255,215,0)',
+                        'rgb(34,139,34)',
+                        'rgb(30,144,255)',
+                        'rgb(199,21,133)',
+                        'rgb(244,164,96)',
+                        'rgb(112,128,144)',
                       ],
                       borderColor: [
                         'rgb(255, 159, 64)',

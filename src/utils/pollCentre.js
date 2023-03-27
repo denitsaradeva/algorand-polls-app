@@ -89,6 +89,7 @@ export const Optin = async (senderAddress, appId) => {
         
         const transactionResponse = await algodClient.pendingTransactionInformation(txId).do();
         console.log("OptIn to app-id:", transactionResponse['txn']['txn']['apid']);
+        alert('Opted in successfuly, you may now vote.')
     } catch (error){
         alert('You have already opted in or the voting period has ended.')
     }
