@@ -65,33 +65,44 @@ const compileProgram = async (programSource) => {
 }
 
 export const Optin = async (senderAddress, appId) => {
- 
-    let params = await algodClient.getTransactionParams().do()
-    params.fee = 1000;
-    params.flatFee = true;
+    try{
+        let params = await algodClient.getTransactionParams().do()
+        params.fee = 1000;
+        params.flatFee = true;
 
-    console.log('ds')
-    console.log(senderAddress)
-    console.log(appId)
+        console.log('ds')
+        console.log(senderAddress)
+        console.log(appId)
 
-    let txn = algosdk.makeApplicationOptInTxn(senderAddress, params, appId);
-    let txId = txn.txID().toString();
+        let txn = algosdk.makeApplicationOptInTxn(senderAddress, params, appId);
+        let txId = txn.txID().toString();
 
-    let signedTxn = await myAlgoConnect.signTransaction(txn.toByte());
-    console.log("Signed transaction with txID: %s", txId);
-    console.log("creation")
-    console.log(signedTxn)
+        let signedTxn = await myAlgoConnect.signTransaction(txn.toByte());
+        console.log("Signed transaction with txID: %s", txId);
+        console.log("creation")
+        console.log(signedTxn)
 
-    await algodClient.sendRawTransaction(signedTxn.blob).do()   
-    const confirmedTxn = await algosdk.waitForConfirmation(algodClient, txId, 4);
-    console.log("confirmed" + confirmedTxn)
-    console.log("Transaction " + txId + " confirmed in round " + confirmedTxn["confirmed-round"]);
-    
-    const transactionResponse = await algodClient.pendingTransactionInformation(txId).do();
-    console.log("OptIn to app-id:", transactionResponse['txn']['txn']['apid']);
+        await algodClient.sendRawTransaction(signedTxn.blob).do()   
+        const confirmedTxn = await algosdk.waitForConfirmation(algodClient, txId, 4);
+        console.log("confirmed" + confirmedTxn)
+        console.log("Transaction " + txId + " confirmed in round " + confirmedTxn["confirmed-round"]);
+        
+        const transactionResponse = await algodClient.pendingTransactionInformation(txId).do();
+        console.log("OptIn to app-id:", transactionResponse['txn']['txn']['apid']);
+    } catch (error){
+        alert('You have already opted in or the voting period has ended.')
+    }
 }
 
+export const isOptedIn = async (senderAddress, appId) => {
+    const accountInfo = await algodClient.accountInformation(senderAddress).do();
+    const apps = accountInfo['apps-local-state'];
+    const assetIDs = apps.map((asset) => asset['id']);
+    return assetIDs.includes(appId);
+  };
+
 export const castVote = async (senderAddress, choice, appId) => {
+    try {
     
         let vote = "vote"
         const appArgs = []
@@ -127,6 +138,10 @@ export const castVote = async (senderAddress, choice, appId) => {
         if (transactionResponse['local-state-delta'] !== undefined ) {
             console.log("Local State updated:",transactionResponse['local-state-delta']);
         }
+        alert('Vote casted.')
+    }catch(error){
+        alert('You have not opted in, have already voted or the voting period has ended.')
+    }
 }
 
 export const retrieveVotes = async (appID) => {

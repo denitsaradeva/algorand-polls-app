@@ -1,7 +1,5 @@
 import React, {useState} from "react";
-import {Card, Col, Form, InputGroup, Button, Row} from "react-bootstrap";
-import { RadioButton } from 'primereact/radiobutton';
-import { Chart } from 'primereact/chart';
+import {Col, Form, InputGroup, Button, Row} from "react-bootstrap";
 import PollChart from "./PollChart"
         
 

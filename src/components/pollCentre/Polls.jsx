@@ -2,7 +2,7 @@ import React, {useState, useEffect} from "react";
 import {algodClient} from "../../utils/constants";
 import PollInstance from "./PollInstance";
 import Poll from "../../utils/pollCentre"
-import {castVote, retrieveVotes, Optin} from "../../utils/pollCentre";
+import {castVote, retrieveVotes, Optin, isOptedIn} from "../../utils/pollCentre";
 import {Button, Modal, Card, ModalDialog, ModalBody} from "react-bootstrap";
 import { useLocation } from 'react-router-dom';
 import PollCreation from './PollCreation';
@@ -20,11 +20,10 @@ const Polls = () => {
     const [currentEndTime, setCurrentEndTime] = useState(0);
     const [currentIndex, setCurrentIndex] = useState('');
     const [currentVotes, setCurrentVotes] = useState({});
-    const [currentRound, setCurrentRound] = useState(0);
-    const [globalLastRound, setGlobalLastRound] = useState(0);
+    // const [currentRound, setCurrentRound] = useState(0);
+    // const [globalLastRound, setGlobalLastRound] = useState(0);
     const [currentPoll, setCurrentPoll] = useState('')
     const [showResultsFl, setShowResultsFl] = useState(false);
-    const [optedIn, setOptedIn] = useState(false);
 
     console.log(allPolls)
 
@@ -38,28 +37,31 @@ const Polls = () => {
     };
 
     const handleVote = async (choice, appId) => {
-        if(choice !== ''){
-           castVote(address, choice, appId)
-                    .catch(error => {
-                        console.log(error);
-                });
-            console.log("done handling vote..");
-        }else{
-            alert('You should select an option to vote for.')
-        }
-        // else{
-        //     alert('You should opt in.')
-        // }
+        const optedIn = await isOptedIn(address, appId);
 
-        //optin shouldn't be local var --> todo
+        if(optedIn){
+            if(choice !== ''){
+            castVote(address, choice, appId)
+                .catch(error => {
+                    console.log(error);
+                });
+                
+            }else{
+                alert('You should select an option first.')
+            }
+        }else{
+            alert('You should opt in first.')
+        }
     };
 
     const handleOptIn = async (appId) => {
-        Optin(address, appId).then(() => {
-           setOptedIn(true); 
-        }).catch((error)=>{
-            console.log(error);
-        });
+        const optedIn = await isOptedIn(address, appId);
+
+        if(optedIn){
+            alert('You have already opted in. You may now vote.')
+        }else{
+            Optin(address, appId).catch((error)=>{console.log(error);});
+        }
     };
 
     const handleResults = async (endTime, appId) => {
@@ -101,6 +103,7 @@ const Polls = () => {
     
     const handleClosePoll = () => {
         setShowPoll(false);
+        setShowResultsFl(false);
     };
 
     const handleOpenPollCreation = async () => {
