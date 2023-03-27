@@ -25,7 +25,6 @@ const Polls = () => {
     const [currentPoll, setCurrentPoll] = useState('')
     const [showResultsFl, setShowResultsFl] = useState(false);
     const [optedIn, setOptedIn] = useState(false);
-    const [maxVotes, setMaxVotes] = useState(100);
 
     console.log(allPolls)
 
@@ -65,9 +64,6 @@ const Polls = () => {
 
     const handleResults = async (endTime, appId) => {
         const status = await algodClient.status().do();
-        // console.log('status')
-        // console.log(status)
-        // const lastRound = status['last-round'];
 
         const block = await algodClient.block(status['last-round']).do();
         const currentRound = block['block']['ts'];
@@ -85,8 +81,6 @@ const Polls = () => {
             const filteredEntries = Object.entries(votes).filter(([key, value]) => 
                 key !== "VotingChoices" && key !== "Title" && key !== "EndTime" && key !== "Creator"
             );
-            const maxVote = Math.max(...filteredEntries.map(([key, value]) => value));
-            setMaxVotes(maxVote);
         }else{
             alert('The voting process for the poll hasn\'t ended')
         } 
@@ -110,8 +104,6 @@ const Polls = () => {
     };
 
     const handleOpenPollCreation = async () => {
-        console.log('ds')
-        console.log(address)
         setShowPollCreation(true);
     };
     
@@ -202,7 +194,6 @@ const Polls = () => {
                         showResultsFlag = {showResultsFl}
                         optIn = {handleOptIn}
                         key={currentIndex}
-                        valueTemplate={maxVotes}
                     />
                 </Modal.Body>
             </Modal>
