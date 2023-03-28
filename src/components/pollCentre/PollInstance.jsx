@@ -3,13 +3,12 @@ import {Col, Form, InputGroup, Button, Row} from "react-bootstrap";
 import PollChart from "./PollChart"
         
 
-const PollInstance = ({address, options, endTime, appId, votes, onOptionSelect, showResults, showResultsFlag, optIn}) => {
+const PollInstance = ({address, options, endTime, appId, votes, onOptionSelect, showResults, showResultsFlag}) => {
 
     const [selectedOption, setSelectedOption] = useState('');
 
     const handleChange = (event) => {
         const value = event.target.value;
-        console.log(value)
         setSelectedOption(value);
     };
 
@@ -21,11 +20,6 @@ const PollInstance = ({address, options, endTime, appId, votes, onOptionSelect, 
     const handleResults = async (event) => {
         event.preventDefault();
         showResults(endTime, appId);
-    };
-
-    const handleOptIn = (event) => {
-        event.preventDefault();
-        optIn(appId);
     };
 
     return (
@@ -58,13 +52,6 @@ const PollInstance = ({address, options, endTime, appId, votes, onOptionSelect, 
                     <Form onSubmit={handleSubmit}>
                         <Button variant="secondary" type="submit" className="btn btn-dark">
                             Vote
-                        </Button>
-                    </Form>
-                </Col>
-                <Col xs="auto">
-                    <Form onSubmit={handleOptIn}>
-                        <Button variant="secondary" type="submit" className="btn btn-dark">
-                            Opt In
                         </Button>
                     </Form>
                 </Col>

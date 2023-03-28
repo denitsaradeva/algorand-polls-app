@@ -1,9 +1,8 @@
 import React, {useState, useEffect} from "react";
 import {algodClient} from "../../utils/constants";
 import PollInstance from "./PollInstance";
-import Poll from "../../utils/pollCentre"
-import {castVote, retrieveVotes, Optin, isOptedIn} from "../../utils/pollCentre";
-import {Button, Modal, Card, ModalDialog, ModalBody} from "react-bootstrap";
+import {castVote, retrieveVotes, isOptedIn} from "../../utils/pollCentre";
+import {Button, Modal, Card, ModalBody} from "react-bootstrap";
 import { useLocation } from 'react-router-dom';
 import PollCreation from './PollCreation';
 import {getPolls} from "../../utils/pollCentre";
@@ -20,12 +19,8 @@ const Polls = () => {
     const [currentEndTime, setCurrentEndTime] = useState(0);
     const [currentIndex, setCurrentIndex] = useState('');
     const [currentVotes, setCurrentVotes] = useState({});
-    // const [currentRound, setCurrentRound] = useState(0);
-    // const [globalLastRound, setGlobalLastRound] = useState(0);
     const [currentPoll, setCurrentPoll] = useState('')
     const [showResultsFl, setShowResultsFl] = useState(false);
-
-    console.log(allPolls)
 
     const address = state.address;
 
@@ -39,28 +34,17 @@ const Polls = () => {
     const handleVote = async (choice, appId) => {
         const optedIn = await isOptedIn(address, appId);
 
-        if(optedIn){
+        if(!optedIn){
             if(choice !== ''){
-            castVote(address, choice, appId)
-                .catch(error => {
-                    console.log(error);
-                });
-                
-            }else{
+                castVote(address, choice, appId)
+                    .catch(error => {
+                        console.log(error);
+                    });
+            } else {
                 alert('You should select an option first.')
             }
-        }else{
-            alert('You should opt in first.')
-        }
-    };
-
-    const handleOptIn = async (appId) => {
-        const optedIn = await isOptedIn(address, appId);
-
-        if(optedIn){
-            alert('You have already opted in. You may now vote.')
-        }else{
-            Optin(address, appId).catch((error)=>{console.log(error);});
+        } else {
+            alert('You have already voted.')
         }
     };
 
@@ -69,12 +53,6 @@ const Polls = () => {
 
         const block = await algodClient.block(status['last-round']).do();
         const currentRound = block['block']['ts'];
-        console.log('ress');
-        console.log(currentRound);
-
-        console.log('curr')
-        console.log(endTime)
-        console.log(parseInt(currentRound) > parseInt(endTime))
 
         if(parseInt(currentRound) > parseInt(endTime)){
             const votes = await retrieveVotes(appId);
@@ -91,7 +69,6 @@ const Polls = () => {
     const handleOpenPoll = async (poll, index) => {
         setCurrentTitle(poll.title);
         setCurrentPoll(poll);
-        console.log('fs')
         console.log(poll)
         const inputOptions = poll.votingChoices;
         const optionsData = inputOptions.split(",");
@@ -195,7 +172,6 @@ const Polls = () => {
                         onOptionSelect={handleVote}
                         showResults = {handleResults}
                         showResultsFlag = {showResultsFl}
-                        optIn = {handleOptIn}
                         key={currentIndex}
                     />
                 </Modal.Body>
