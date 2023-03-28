@@ -1,8 +1,8 @@
 import React, {useState} from "react";
 import {Form, Button} from "react-bootstrap";
 import {createNewPoll} from "../../utils/pollCentre";
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+
+import { DateTimePicker} from 'react-rainbow-components';
 
 const PollCreation = ({address, completedCreation}) => {
 
@@ -32,11 +32,29 @@ const PollCreation = ({address, completedCreation}) => {
 
     const handleSubmit = () => {
         let result = options.join(",");
-        createNewPoll(address, title, result, date)
-            .then((appId) => {completedCreation(address, title, result, date, appId)})
-            .catch(error => {
-                console.log(error);
-        });
+
+        if(title==''){
+            alert('Please add a title')
+        }else if(options.length <2){
+            alert('The voting options should be at least 2')
+        }else{
+            console.log(date)
+            createNewPoll(address, title, result, date)
+                .then((appId) => {
+                    if(appId){
+                        completedCreation(address, title, result, date, appId)
+                    }else{
+                        alert('Something went wrong')
+                    }
+                })
+                .catch(error => {
+                    console.log(error);
+            });
+        }
+    };
+
+    const containerStyles = {
+        maxWidth: 400,
     };
 
     return (
@@ -64,13 +82,15 @@ const PollCreation = ({address, completedCreation}) => {
 
             <br></br>
 
-            <div>
-                <DatePicker
-                    selected={date}
-                    onChange={setDate}
-                    showTimeSelect
-                    timeFormat="HH:mm:ss.SSS"
-                    dateFormat="MM/dd/yyyy h:mm:ss"
+            <div
+                className="rainbow-align-content_center rainbow-m-vertical_large rainbow-p-horizontal_small rainbow-m_auto"
+                style={containerStyles}
+            >
+                <DateTimePicker
+                    value={date}
+                    minDate={new Date()}
+                    label="End time"
+                    onChange={value => setDate(value)}
                 />
             </div>
 

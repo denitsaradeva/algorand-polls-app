@@ -176,60 +176,65 @@ export const toBytes = (input) => {
 }
 
 export const createNewPoll = async (senderAddress, pollTitle, pollOptions, duration) => {
-    console.log("Adding poll...")
-    console.log(duration)
+    try{
+        console.log("Adding poll...")
+        console.log(duration)
 
 
-    const voteEnd = Math.floor(duration.getTime() / 1000); // convert milliseconds to seconds
-    console.log(voteEnd);
+        const voteEnd = Math.floor(duration.getTime() / 1000); // convert milliseconds to seconds
+        console.log(voteEnd);
 
-    let params = await algodClient.getTransactionParams().do();
-    params.fee = algosdk.ALGORAND_MIN_TX_FEE;
-    params.flatFee = true;
+        let params = await algodClient.getTransactionParams().do();
+        params.fee = algosdk.ALGORAND_MIN_TX_FEE;
+        params.flatFee = true;
 
-    const compiledApprovalProgram = await compileProgram(approvalProgram)
-    const compiledClearProgram = await compileProgram(clearProgram)
+        const compiledApprovalProgram = await compileProgram(approvalProgram)
+        const compiledClearProgram = await compileProgram(clearProgram)
 
-    let note = new TextEncoder().encode(marketplaceNote);
-    let title = new TextEncoder().encode(pollTitle);
-    let options = new TextEncoder().encode(pollOptions);
+        let note = new TextEncoder().encode(marketplaceNote);
+        let title = new TextEncoder().encode(pollTitle);
+        let options = new TextEncoder().encode(pollOptions);
 
-    console.log(senderAddress)
+        console.log(senderAddress)
 
-    let appArgs = [title, options]
+        let appArgs = [title, options]
 
-    appArgs.push(algosdk.encodeUint64(voteEnd))
+        appArgs.push(algosdk.encodeUint64(voteEnd))
 
-    let txn = algosdk.makeApplicationCreateTxnFromObject({
-        from: senderAddress,
-        suggestedParams: params,
-        onComplete: algosdk.OnApplicationComplete.NoOpOC,
-        approvalProgram: compiledApprovalProgram,
-        clearProgram: compiledClearProgram,
-        numLocalInts: numLocalInts,
-        numLocalByteSlices: numLocalBytes,
-        numGlobalInts: numGlobalInts,
-        numGlobalByteSlices: numGlobalBytes,
-        note: note,
-        appArgs: appArgs
-    });
+        let txn = algosdk.makeApplicationCreateTxnFromObject({
+            from: senderAddress,
+            suggestedParams: params,
+            onComplete: algosdk.OnApplicationComplete.NoOpOC,
+            approvalProgram: compiledApprovalProgram,
+            clearProgram: compiledClearProgram,
+            numLocalInts: numLocalInts,
+            numLocalByteSlices: numLocalBytes,
+            numGlobalInts: numGlobalInts,
+            numGlobalByteSlices: numGlobalBytes,
+            note: note,
+            appArgs: appArgs
+        });
 
-    let txId = txn.txID().toString();
+        let txId = txn.txID().toString();
 
-    let signedTxn = await myAlgoConnect.signTransaction(txn.toByte());
-    console.log("Signed transaction with txID: %s", txId);
-    console.log("creation")
-    console.log(signedTxn)
-    await algodClient.sendRawTransaction(signedTxn.blob).do();
+        let signedTxn = await myAlgoConnect.signTransaction(txn.toByte());
+        console.log("Signed transaction with txID: %s", txId);
+        console.log("creation")
+        console.log(signedTxn)
+        await algodClient.sendRawTransaction(signedTxn.blob).do();
 
-    let confirmedTxn = await algosdk.waitForConfirmation(algodClient, txId, 4);
+        let confirmedTxn = await algosdk.waitForConfirmation(algodClient, txId, 4);
 
-    console.log("Transaction " + txId + " confirmed in round " + confirmedTxn["confirmed-round"]);
+        console.log("Transaction " + txId + " confirmed in round " + confirmedTxn["confirmed-round"]);
 
-    let transactionResponse = await algodClient.pendingTransactionInformation(txId).do();
-    let appId = transactionResponse['application-index'];
-    console.log("Created new app-id: ", appId);
-    return appId;
+        let transactionResponse = await algodClient.pendingTransactionInformation(txId).do();
+        let appId = transactionResponse['application-index'];
+        console.log("Created new app-id: ", appId);
+        alert('Poll created successfully!')
+        return appId;
+    } catch(error){
+        alert('An input field is invalid')
+    }  
 }
 
 const getApplication = async (appId) => {

@@ -41,14 +41,7 @@ const PollChart = ({votes, options}) => {
                         'rgb(199,21,133)',
                         'rgb(244,164,96)',
                         'rgb(112,128,144)',
-                      ],
-                      borderColor: [
-                        'rgb(255, 159, 64)',
-                        'rgb(75, 192, 192)',
-                        'rgb(54, 162, 235)',
-                        'rgb(153, 102, 255)'
-                      ],
-                      borderWidth: 1
+                      ]
                 }
             ]
         };
