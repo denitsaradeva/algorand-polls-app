@@ -58,9 +58,6 @@ const Polls = () => {
             const votes = await retrieveVotes(appId);
             setCurrentVotes(votes);
             setShowResultsFl(true);
-            const filteredEntries = Object.entries(votes).filter(([key, value]) => 
-                key !== "VotingChoices" && key !== "Title" && key !== "EndTime" && key !== "Creator"
-            );
         }else{
             alert('The voting process for the poll hasn\'t ended')
         } 
@@ -115,6 +112,7 @@ const Polls = () => {
                 }
             })
             .catch(error => {
+                alert('Problem with fetching. Please ensure your internet connection is good and try again.')
                 console.log(error);
             })
     };
@@ -140,9 +138,11 @@ const Polls = () => {
                     </div>
                 ))}
 
-                <div className="text-center">
-                    <Button className="btn btn-primary rounded-pill btn-lg"  onClick={() => handleOpenPollCreation()} type="submit">Add a Poll</Button>
-                </div>
+                {address==='ITBD5TIB7DX5GKKBL4KRJH574ZVKUVQESBWZ6NOTNSLQBAD4Q2B7WSMNQY' &&
+                    <div className="text-center">
+                        <Button className="btn btn-primary rounded-pill btn-lg"  onClick={() => handleOpenPollCreation()} type="submit">Add a Poll</Button>
+                    </div>
+                }
             </div>
 
             <Modal show={showPollCreation} onHide={handleClosePollCreation}>

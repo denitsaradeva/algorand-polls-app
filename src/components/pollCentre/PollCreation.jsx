@@ -33,7 +33,7 @@ const PollCreation = ({address, completedCreation}) => {
     const handleSubmit = () => {
         let result = options.join(",");
 
-        if(title==''){
+        if(title===''){
             alert('Please add a title')
         }else if(options.length <2){
             alert('The voting options should be at least 2')

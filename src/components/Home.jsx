@@ -29,11 +29,10 @@ const Home = () => {
     };
 
     useEffect(() => {
-        // myFunction();
         return () => {
-          setAllPolls(allPolls); // This worked for me
+          setAllPolls(allPolls);
         };
-    }, []);
+    }, [allPolls]);
 
     const connectToMyAlgoWallet = async () => {
       try {
@@ -44,8 +43,6 @@ const Home = () => {
         }; 
 
         const accounts = await new MyAlgoConnect().connect(settings);
-        console.log('accounts')
-        console.log(accounts)
         const account = accounts[0];
         
         await indexerClient.lookupAccountAssets(account.address).do().then(async (jsonOutput) =>{
@@ -59,7 +56,7 @@ const Home = () => {
             }
         });
       } catch (e) {
-        console.log('Problem while trying to connect to MyAlgo wallet');
+        alert('Problem while trying to connect to MyAlgo wallet');
         console.error(e);
       }
     };
@@ -67,16 +64,11 @@ const Home = () => {
     return (
         <div className="d-flex justify-content-center flex-column poll-footer text-center min-vh-100">
             <div className="  mb-5">
-                <div
-                    // className=" ratio ratio-1x1 mx-auto mb-2"
-                    style={{maxWidth: "320px"}}
-                >
+                <div style={{maxWidth: "320px"}}>
                 </div>
                 <h1 className="text-light display-1">{"Algo Polls"}</h1>
-                {/* <p className="text-light">Please connect your wallet to continue.</p> */}
                 <Button type="button"
                     onClick={() => connectToMyAlgoWallet()}
-                    // variant="outline-light"
                     className="btn btn-light rounded-pill px-3 mt-3"
                 >
                     Connect Wallet
@@ -84,17 +76,12 @@ const Home = () => {
                 <br></br>
                 {address && (
                     <Link to='/polls' state= {pollsData}>
-                    {/* <Link to={`/polls?address=${address}`}> */}
-                        <Button type="button"
-                            // variant="outline-light"
-                            className="btn btn-light rounded-pill px-3 mt-3"
-                        >
+                        <Button type="button"className="btn btn-light rounded-pill px-3 mt-3">
                             Go to Polls
                         </Button>
                     </Link>
                 )}
             </div>
-            {/* <p className="mt-auto text-secondary">Powered by Algorand</p> */}
         </div>
     );
 };
