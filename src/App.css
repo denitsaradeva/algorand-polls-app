@@ -86,3 +86,7 @@
   border-radius: 10px;
   margin-bottom: 1rem;
 }
+
+.waitingSpinner{
+  margin-top: 1rem;
+}

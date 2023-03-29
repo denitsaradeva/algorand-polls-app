@@ -1,9 +1,10 @@
 import React, {useState} from "react";
 import {Col, Form, InputGroup, Button, Row} from "react-bootstrap";
 import PollChart from "./PollChart"
+import { ProgressSpinner } from 'primereact/progressspinner';
         
 
-const PollInstance = ({address, options, endTime, appId, votes, onOptionSelect, showResults, showResultsFlag}) => {
+const PollInstance = ({address, options, endTime, appId, votes, onOptionSelect, showResults, showResultsFlag, isWaiting}) => {
 
     const [selectedOption, setSelectedOption] = useState('');
 
@@ -61,6 +62,14 @@ const PollInstance = ({address, options, endTime, appId, votes, onOptionSelect, 
                             Results
                         </Button>
                     </Form>
+                </Col>
+
+                <Col xs="auto">
+                    {isWaiting &&
+                        <div className="flex justify-content-center">
+                            <ProgressSpinner  style={{width: '50px', height: '50px'}}/>
+                        </div>
+                    } 
                 </Col>
             </Row>
         </div>

@@ -1,8 +1,9 @@
 import React, {useState} from "react";
-import {Form, Button} from "react-bootstrap";
+import {Form, Button, Row, Col} from "react-bootstrap";
 import {createNewPoll} from "../../utils/pollCentre";
 
 import { DateTimePicker} from 'react-rainbow-components';
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 const PollCreation = ({address, completedCreation}) => {
 
@@ -10,6 +11,8 @@ const PollCreation = ({address, completedCreation}) => {
     const [options, setOptions] = useState([]);
 
     const [date, setDate] = useState(new Date());
+
+    const [isWaiting, setIsWaiting] = useState(false);
 
     const handleTitleChange = event => {
         setTitle(event.target.value);
@@ -30,7 +33,7 @@ const PollCreation = ({address, completedCreation}) => {
         setOptions([...options, ""]);
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         let result = options.join(",");
 
         if(title===''){
@@ -38,17 +41,20 @@ const PollCreation = ({address, completedCreation}) => {
         }else if(options.length <2){
             alert('The voting options should be at least 2')
         }else{
-            console.log(date)
+            setIsWaiting(true);
             createNewPoll(address, title, result, date)
                 .then((appId) => {
                     if(appId){
                         completedCreation(address, title, result, date, appId)
+                        setIsWaiting(false);
                     }else{
                         alert('Something went wrong')
+                        setIsWaiting(false);
                     }
                 })
                 .catch(error => {
                     console.log(error);
+                    setIsWaiting(false);
             });
         }
     };
@@ -95,10 +101,22 @@ const PollCreation = ({address, completedCreation}) => {
             </div>
 
             <br></br>
-            
-            <Button className="btn btn-dark rounded-pill btn-lg" variant="secondary" type="submit" onClick={handleSubmit}>
-                Create Poll
-            </Button>
+
+            <Row className="align-items-center">
+                <Col xs="auto">
+                    <Button className="btn btn-dark rounded-pill btn-lg" variant="secondary" type="submit" onClick={handleSubmit}>
+                        Create Poll
+                    </Button>
+                </Col>
+
+                <Col xs="auto">
+                    {isWaiting &&
+                        <div className="flex justify-content-center">
+                            <ProgressSpinner  style={{width: '50px', height: '50px'}}/>
+                        </div>
+                    }
+                </Col>
+            </Row>
         </div>
         
     );

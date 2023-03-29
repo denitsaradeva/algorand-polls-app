@@ -98,7 +98,7 @@ export const castVote = async (senderAddress, choice, appId) => {
         }) 
     
     }catch(error){
-        alert('You have already voted or the voting period has ended.')
+        alert('You have already voted or the voting period has ended.');
     }
 }
 

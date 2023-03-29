@@ -21,6 +21,7 @@ const Polls = () => {
     const [currentVotes, setCurrentVotes] = useState({});
     const [currentPoll, setCurrentPoll] = useState('')
     const [showResultsFl, setShowResultsFl] = useState(false);
+    const [isWaiting, setIsWaiting] = useState(false);
 
     const address = state.address;
 
@@ -36,15 +37,20 @@ const Polls = () => {
 
         if(!optedIn){
             if(choice !== ''){
-                castVote(address, choice, appId)
+                setIsWaiting(true);
+                castVote(address, choice, appId).then(() =>{
+                    setIsWaiting(false);
+                    })
                     .catch(error => {
                         console.log(error);
                     });
             } else {
                 alert('You should select an option first.')
+                setIsWaiting(false);
             }
         } else {
             alert('You have already voted.')
+            setIsWaiting(false);
         }
     };
 
@@ -172,6 +178,7 @@ const Polls = () => {
                         onOptionSelect={handleVote}
                         showResults = {handleResults}
                         showResultsFlag = {showResultsFl}
+                        isWaiting = {isWaiting}
                         key={currentIndex}
                     />
                 </Modal.Body>

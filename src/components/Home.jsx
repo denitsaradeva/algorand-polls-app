@@ -4,11 +4,14 @@ import MyAlgoConnect from "@randlabs/myalgo-connect";
 import {getPolls} from "../utils/pollCentre";
 import { Link } from 'react-router-dom';
 import {indexerClient} from "../utils/constants";
+import { ProgressSpinner } from 'primereact/progressspinner';
+import '../App.css'
 
 const Home = () => {
 
     const [address, setAddress] = useState(null);
     const [allPolls, setAllPolls] = useState([]);
+    const [isWaiting, setIsWaiting] = useState(false);
 
     const pollsData = {
         polls: allPolls,
@@ -35,30 +38,34 @@ const Home = () => {
     }, [allPolls]);
 
     const connectToMyAlgoWallet = async () => {
-      try {
+        try {
+            setIsWaiting(true);
+            const settings = {
+                shouldSelectOneAccount: true,
+                openManager: true
+            }; 
 
-        const settings = {
-            shouldSelectOneAccount: true,
-            openManager: true
-        }; 
-
-        const accounts = await new MyAlgoConnect().connect(settings);
-        const account = accounts[0];
-        
-        await indexerClient.lookupAccountAssets(account.address).do().then(async (jsonOutput) =>{
-            let assetValues = jsonOutput['assets'];
-            for (let i =0; i<assetValues.length; i++){
-                if(assetValues[i]['asset-id']===162841058){
-                    await getPollsUpdate(account).catch ((error) => {
-                        console.log(error);
-                    });
+            const accounts = await new MyAlgoConnect().connect(settings);
+            const account = accounts[0];
+            
+            await indexerClient.lookupAccountAssets(account.address).do().then(async (jsonOutput) =>{
+                let assetValues = jsonOutput['assets'];
+                for (let i =0; i<assetValues.length; i++){
+                    if(assetValues[i]['asset-id']===162841058){
+                        await getPollsUpdate(account).then(()=>{
+                            setIsWaiting(false);
+                        })
+                        .catch ((error) => {
+                            console.log(error);
+                        });
+                    }
                 }
-            }
-        });
-      } catch (e) {
-        alert('Problem while trying to connect to MyAlgo wallet');
-        console.error(e);
-      }
+            });
+        } catch (e) {
+            alert('Problem while trying to connect to MyAlgo wallet');
+            setIsWaiting(false);
+            console.error(e);
+        }
     };
 
     return (
@@ -73,6 +80,11 @@ const Home = () => {
                 >
                     Connect Wallet
                 </Button>
+                {isWaiting &&
+                    <div className="flex justify-content-center waitingSpinner">
+                        <ProgressSpinner  style={{width: '50px', height: '50px'}}/>
+                    </div>
+                } 
                 <br></br>
                 {address && (
                     <Link to='/polls' state= {pollsData}>
