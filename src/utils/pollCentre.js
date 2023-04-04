@@ -8,12 +8,17 @@ import {
     numGlobalInts,
     numLocalBytes,
     numLocalInts,
-    minRound
+    minRound,
+    publicKey, 
+    privateKey
 } from "./constants";
 /* eslint import/no-webpack-loader-syntax: off */
 import approvalProgram from "!!raw-loader!../contracts/pollSystem_approval.teal";
 import clearProgram from "!!raw-loader!../contracts/pollSystem_clear.teal";
 import {base64ToUTF8String, utf8ToBase64String} from "./conversions";
+import * as bigintConversion from 'bigint-conversion'
+
+const BigInt = window.BigInt || global.BigInt;
 
 class Poll {
     constructor(owner, title, votingChoices, endTime, appId) {
@@ -67,11 +72,14 @@ export const isOptedIn = async (senderAddress, appId) => {
 
 export const castVote = async (senderAddress, choice, appId) => {
     try {
+        const myChoice = bigintConversion.textToBigint(choice)
+        const choiceParam = publicKey.encrypt(myChoice)
+
         let vote = "vote"
         const appArgs = []
         appArgs.push(
         new Uint8Array(Buffer.from(vote)),
-        new Uint8Array(Buffer.from(choice)),
+        new Uint8Array(Buffer.from(choiceParam.toString())),
         )
 
         let params = await algodClient.getTransactionParams().do()
@@ -98,6 +106,7 @@ export const castVote = async (senderAddress, choice, appId) => {
         }) 
     
     }catch(error){
+        console.log(error)
         alert('You have already voted or the voting period has ended.');
     }
 }
@@ -109,13 +118,14 @@ export const retrieveVotes = async (appID) => {
       } catch (error) {
         console.error(error);
       }
-      
     const voteCounts = {};
     for (const entry of globalState['params']['global-state']) {
         const key = base64ToUTF8String(entry['key']);
         const value = entry['value']['uint'];
-        if (key !== 'TITLE' && key !== 'CREATOR' && key !== 'CHOICE' && key !== 'OPTIONS') {
-            voteCounts[key] = parseInt(value);
+        if (key !== 'Creator' && key !== 'EndTime' && key !== 'VotingChoices' && key !== 'Title') {
+            const decrRes = privateKey.decrypt(BigInt(key))
+            const keyN = bigintConversion.bigintToText(decrRes);
+            voteCounts[keyN] = parseInt(value);
         }
     }
 
