@@ -1,6 +1,6 @@
 import algosdk from "algosdk";
 import MyAlgoConnect from "@randlabs/myalgo-connect";
-import * as paillierBigint from 'paillier-bigint'
+// import * as paillierBigint from 'paillier-bigint'
 
 const config = {
     algodToken: "",
@@ -17,20 +17,22 @@ export const indexerClient = new algosdk.Indexer(config.indexerToken, config.ind
 
 export const myAlgoConnect = new MyAlgoConnect();
 
-export let publicKey;
-export let privateKey;
+// export let publicKey;
+// export let privateKey;
 
-async function generateKeys() {
-    if(!publicKey || !privateKey){
-        const keys = await paillierBigint.generateRandomKeys(50);
-        publicKey = keys.publicKey;
-        privateKey = keys.privateKey;
-    }
-}
+// async function generateKeys() {
+//     console.log('ppp')
+//     if(!publicKey || !privateKey){
+//         console.log('ppp1')
+//         const keys = await paillierBigint.generateRandomKeys(50);
+//         publicKey = keys.publicKey;
+//         privateKey = keys.privateKey;
+//     }
+// }
 
-generateKeys().catch(console.error);
+// generateKeys().catch(console.error);
 
-export const minRound = 28757900;
+export const minRound = 28957900;
 
 export const marketplaceNote = "polling-system:uv8"
 

@@ -9,16 +9,30 @@ import {
     numLocalBytes,
     numLocalInts,
     minRound,
-    publicKey, 
-    privateKey
+    // publicKey, 
+    // privateKey
 } from "./constants";
 /* eslint import/no-webpack-loader-syntax: off */
 import approvalProgram from "!!raw-loader!../contracts/pollSystem_approval.teal";
 import clearProgram from "!!raw-loader!../contracts/pollSystem_clear.teal";
 import {base64ToUTF8String, utf8ToBase64String} from "./conversions";
 import * as bigintConversion from 'bigint-conversion'
+// import * as paillierBigint from 'paillier-bigint'
+// import {encrypt, decrypt} from pypaillier
+
+// const paillierObj = require('paillier-js');
+
+
 
 const BigInt = window.BigInt || global.BigInt;
+
+// const publicKey = new paillierObj.PublicKey(BigInt('2345678901'));
+// const privateKey = new paillierObj.PrivateKey(BigInt('9876543210'));
+
+// Create new Paillier object with the hardcoded keys
+// const paillier = new paillierObj(publicKey, privateKey);
+// const public_key = 3206759312  
+// const private_key = (2345678901, 3456789012, 4567890123)  
 
 class Poll {
     constructor(owner, title, votingChoices, endTime, appId) {
@@ -72,14 +86,23 @@ export const isOptedIn = async (senderAddress, appId) => {
 
 export const castVote = async (senderAddress, choice, appId) => {
     try {
-        const myChoice = bigintConversion.textToBigint(choice)
-        const choiceParam = publicKey.encrypt(myChoice)
+        // const myChoice = bigintConversion.textToBigint(choice)
+        // const choiceParam = paillier.encrypt(myChoice)
+
+        // const decrRes = paillier.decrypt(BigInt(choiceParam.toString()))
+        //     console.log('decrr')
+        //     console.log(decrRes)
+        //     const keyN = bigintConversion.bigintToText(decrRes);
+        //     console.log('keyNN')
+        //     console.log(keyN)
+        //     console.log(paillier)
 
         let vote = "vote"
         const appArgs = []
         appArgs.push(
         new Uint8Array(Buffer.from(vote)),
-        new Uint8Array(Buffer.from(choiceParam.toString())),
+        // new Uint8Array(Buffer.from(choiceParam.toString())),
+        new Uint8Array(Buffer.from(choice)),
         )
 
         let params = await algodClient.getTransactionParams().do()
@@ -122,10 +145,20 @@ export const retrieveVotes = async (appID) => {
     for (const entry of globalState['params']['global-state']) {
         const key = base64ToUTF8String(entry['key']);
         const value = entry['value']['uint'];
+        console.log('keyy')
+        console.log(key)
+        console.log('valuee')
+        console.log(value)
         if (key !== 'Creator' && key !== 'EndTime' && key !== 'VotingChoices' && key !== 'Title') {
-            const decrRes = privateKey.decrypt(BigInt(key))
-            const keyN = bigintConversion.bigintToText(decrRes);
-            voteCounts[keyN] = parseInt(value);
+            // const decrRes = paillier.decrypt(bigintConversion.textToBigint(key))
+            // console.log('decrr')
+            // console.log(decrRes)
+            // const keyN = bigintConversion.bigintToText(decrRes);
+            // console.log('keyNN')
+            // console.log(keyN)
+            // console.log(paillier)
+            // voteCounts[keyN] = parseInt(value);
+            voteCounts[key] = parseInt(value);
         }
     }
 
