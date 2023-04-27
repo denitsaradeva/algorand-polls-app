@@ -142,10 +142,6 @@ export const retrieveVotes = async (appID) => {
   for (const entry of globalState["params"]["global-state"]) {
     const key = base64ToUTF8String(entry["key"]);
     const value = entry["value"]["uint"];
-    console.log("keyy");
-    console.log(key);
-    console.log("valuee");
-    console.log(value);
     if (
       key !== "Creator" &&
       key !== "EndTime" &&
@@ -206,7 +202,6 @@ export const createNewPoll = async (
     let txId = txn.txID().toString();
 
     let signedTxn = await myAlgoConnect.signTransaction(txn.toByte());
-    console.log("Signed transaction with txID: %s", txId);
     await algodClient.sendRawTransaction(signedTxn.blob).do();
 
     await algosdk.waitForConfirmation(algodClient, txId, 4);
@@ -215,7 +210,6 @@ export const createNewPoll = async (
       .pendingTransactionInformation(txId)
       .do();
     let appId = transactionResponse["application-index"];
-    console.log("Created new app-id: ", appId);
     alert("Poll created successfully!");
     return appId;
   } catch (error) {

@@ -31,9 +31,7 @@ const Home = () => {
   };
 
   useEffect(() => {
-    return () => {
-      setAllPolls(allPolls);
-    };
+    setAllPolls(allPolls);
   }, [allPolls]);
 
   const connectToMyAlgoWallet = async () => {
