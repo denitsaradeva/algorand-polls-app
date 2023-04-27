@@ -1,14 +1,8 @@
 import algosdk from "algosdk";
 import {
   indexerClient,
-  marketplaceNote,
   algodClient,
   myAlgoConnect,
-  numGlobalBytes,
-  numGlobalInts,
-  numLocalBytes,
-  numLocalInts,
-  minRound,
   publicKey,
   privateKey,
 } from "./constants";
@@ -27,12 +21,20 @@ class Poll {
   }
 }
 
-const base64ToUTF8String = (base64String) => {
-  return Buffer.from(base64String, "base64").toString("utf-8");
+const base64ToUTF8String = (input) => {
+  try {
+    return Buffer.from(input, "base64").toString("utf-8");
+  } catch (error) {
+    console.log(error);
+  }
 };
 
-const utf8ToBase64String = (utf8String) => {
-  return Buffer.from(utf8String, "utf8").toString("base64");
+const utf8ToBase64String = (input) => {
+  try {
+    return Buffer.from(input, "utf8").toString("base64");
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 export const getPolls = async () => {
@@ -41,7 +43,7 @@ export const getPolls = async () => {
     .searchForTransactions({ address })
     .address(address)
     .txType("appl")
-    .minRound(minRound)
+    .minRound(29407900)
     .do()
     .catch((err) => {
       console.error(err);
@@ -179,7 +181,7 @@ export const createNewPoll = async (
     const compiledApprovalProgram = await compileProgram(approvalProgram);
     const compiledClearProgram = await compileProgram(clearProgram);
 
-    let note = new TextEncoder().encode(marketplaceNote);
+    let noteArg = new TextEncoder().encode("polling-system");
     let title = new TextEncoder().encode(pollTitle);
     let options = new TextEncoder().encode(pollOptions);
 
@@ -193,11 +195,11 @@ export const createNewPoll = async (
       onComplete: algosdk.OnApplicationComplete.NoOpOC,
       approvalProgram: compiledApprovalProgram,
       clearProgram: compiledClearProgram,
-      numLocalInts: numLocalInts,
-      numLocalByteSlices: numLocalBytes,
-      numGlobalInts: numGlobalInts,
-      numGlobalByteSlices: numGlobalBytes,
-      note: note,
+      numLocalInts: 4,
+      numLocalByteSlices: 4,
+      numGlobalInts: 6,
+      numGlobalByteSlices: 6,
+      note: noteArg,
       appArgs: appArgs,
     });
 
@@ -234,33 +236,20 @@ const getApplication = async (appId) => {
 
     let owner = response.application.params.creator;
 
-    const getField = (fieldName, globalState) => {
-      return globalState.find((state) => {
-        return state.key === utf8ToBase64String(fieldName);
-      });
-    };
+    let title = base64ToUTF8String(
+      globalState.find((entry) => entry.key === utf8ToBase64String("Title"))
+        .value.bytes
+    );
 
-    // let title = base64ToUTF8String(response.application.params["global-state"].find(entry => entry.key === utf8ToBase64String("Title")).value.bytes);
-    // let votingChoices = base64ToUTF8String(response.application.params["global-state"].find(entry => entry.key === utf8ToBase64String("VotingChoices")).value.bytes);
-    // let endTime = base64ToUTF8String(response.application.params["global-state"].find(entry => entry.key === utf8ToBase64String("EndTime")).value.bytes);
+    let votingChoices = base64ToUTF8String(
+      globalState.find(
+        (entry) => entry.key === utf8ToBase64String("VotingChoices")
+      ).value.bytes
+    );
 
-    let title = "";
-    let votingChoices = "";
-    let endTime = "";
-
-    if (getField("Title", globalState) !== undefined) {
-      let field = getField("Title", globalState).value.bytes;
-      title = base64ToUTF8String(field);
-    }
-
-    if (getField("VotingChoices", globalState) !== undefined) {
-      let field = getField("VotingChoices", globalState).value.bytes;
-      votingChoices = base64ToUTF8String(field);
-    }
-
-    if (getField("EndTime", globalState) !== undefined) {
-      endTime = getField("EndTime", globalState).value.uint;
-    }
+    let endTime = globalState.find(
+      (entry) => entry.key === utf8ToBase64String("EndTime")
+    ).value.uint;
 
     return new Poll(owner, title, votingChoices, endTime, appId);
   } catch (err) {

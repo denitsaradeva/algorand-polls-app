@@ -82,7 +82,6 @@ const Polls = () => {
   const handleOpenPoll = async (poll, index) => {
     setCurrentTitle(poll.title);
     setCurrentPoll(poll);
-    console.log(poll);
     const inputOptions = poll.votingChoices;
     const optionsData = inputOptions.split(",");
     setCurrentOptions(optionsData);
@@ -141,13 +140,10 @@ const Polls = () => {
       <br></br>
       <div className="row justify-content-center card-padding">
         {allPolls.map((poll, index) => (
-          <div className="col-md-2 mb-3" key={index}>
+          <div className="col-md-2 mb-4" key={index}>
             <Card key={index}>
               <div className="card text-center">
-                <div
-                  className="card-header poll-body"
-                  style={{ height: "7em" }}
-                >
+                <div className="poll-body" style={{ height: "7em" }}>
                   <h3>{poll.title}</h3>
                 </div>
                 <div className="card-body poll-footer">

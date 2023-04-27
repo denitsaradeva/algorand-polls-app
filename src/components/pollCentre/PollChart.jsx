@@ -56,7 +56,6 @@ const PollChart = ({ votes, options }) => {
 
       setChartData(data);
       setChartOptions(optionsChart);
-      console.log("ahd");
     };
     setData();
   }, [votes, options]);

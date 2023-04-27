@@ -37,13 +37,3 @@ async function generateKeys() {
 }
 
 generateKeys().catch(console.error);
-
-export const minRound = 29407900;
-
-export const marketplaceNote = "polling-system:uv8";
-
-export const numLocalInts = 4;
-export const numLocalBytes = 4;
-
-export const numGlobalInts = 6;
-export const numGlobalBytes = 6;
