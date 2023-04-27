@@ -116,7 +116,6 @@ const Polls = () => {
 
   useEffect(() => {
     getPollsUpdate();
-    console.log("Page refreshed!");
   }, []);
 
   const getPollsUpdate = async () => {
