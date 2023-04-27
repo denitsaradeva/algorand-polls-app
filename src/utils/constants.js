@@ -3,17 +3,25 @@ import MyAlgoConnect from "@randlabs/myalgo-connect";
 // import * as paillierBigint from 'paillier-bigint'
 
 const config = {
-    algodToken: "",
-    algodServer: "https://node.testnet.algoexplorerapi.io",
-    algodPort: "",
-    indexerToken: "",
-    indexerServer: "https://testnet-idx.algonode.network",
-    indexerPort: "",
-}
+  algodToken: "",
+  algodServer: "https://node.testnet.algoexplorerapi.io",
+  algodPort: "",
+  indexerToken: "",
+  indexerServer: "https://testnet-idx.algonode.network",
+  indexerPort: "",
+};
 
-export const algodClient = new algosdk.Algodv2(config.algodToken, config.algodServer, config.algodPort)
+export const algodClient = new algosdk.Algodv2(
+  config.algodToken,
+  config.algodServer,
+  config.algodPort
+);
 
-export const indexerClient = new algosdk.Indexer(config.indexerToken, config.indexerServer, config.indexerPort);
+export const indexerClient = new algosdk.Indexer(
+  config.indexerToken,
+  config.indexerServer,
+  config.indexerPort
+);
 
 export const myAlgoConnect = new MyAlgoConnect();
 
@@ -32,12 +40,12 @@ export const myAlgoConnect = new MyAlgoConnect();
 
 // generateKeys().catch(console.error);
 
-export const minRound = 28957900;
+export const minRound = 29407900;
 
-export const marketplaceNote = "polling-system:uv8"
+export const marketplaceNote = "polling-system:uv8";
 
 export const numLocalInts = 4;
 export const numLocalBytes = 4;
 
-export const numGlobalInts = 6; 
+export const numGlobalInts = 6;
 export const numGlobalBytes = 6;
