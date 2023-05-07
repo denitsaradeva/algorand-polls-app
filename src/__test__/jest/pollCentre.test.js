@@ -48,7 +48,7 @@ describe("Poll", () => {
 });
 
 describe("getPolls", () => {
-  it("should expose a function", () => {
+  it("should render a function", () => {
     expect(getPolls).toBeDefined();
   });
 
@@ -58,7 +58,7 @@ describe("getPolls", () => {
   });
 });
 describe("isOptedIn", () => {
-  it("should expose a function", () => {
+  it("should render a function", () => {
     expect(isOptedIn).toBeDefined();
   });
 
@@ -68,7 +68,7 @@ describe("isOptedIn", () => {
   });
 });
 describe("castVote", () => {
-  it("should expose a function", () => {
+  it("should render a function", () => {
     expect(castVote).toBeDefined();
   });
 
@@ -78,7 +78,7 @@ describe("castVote", () => {
   });
 });
 describe("retrieveVotes", () => {
-  it("should expose a function", () => {
+  it("should render a function", () => {
     expect(retrieveVotes).toBeDefined();
   });
 
@@ -88,7 +88,7 @@ describe("retrieveVotes", () => {
   });
 });
 describe("toBytes", () => {
-  it("should expose a function", () => {
+  it("should render a function", () => {
     expect(toBytes).toBeDefined();
   });
 
@@ -98,7 +98,7 @@ describe("toBytes", () => {
   });
 });
 describe("createNewPoll", () => {
-  it("should expose a function", () => {
+  it("should render a function", () => {
     expect(createNewPoll).toBeDefined();
   });
 

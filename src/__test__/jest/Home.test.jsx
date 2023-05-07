@@ -19,7 +19,7 @@ jest.mock("../App.css");
 
 const renderTree = (tree) => renderer.create(tree);
 describe("<Home>", () => {
-  it("should render component", () => {
+  it("should render Home", () => {
     expect(renderTree(<Home />).toJSON()).toMatchSnapshot();
   });
 });

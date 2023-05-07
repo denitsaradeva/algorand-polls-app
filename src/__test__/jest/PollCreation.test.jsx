@@ -13,7 +13,7 @@ jest.mock("primereact/progressspinner");
 
 const renderTree = (tree) => renderer.create(tree);
 describe("<PollCreation>", () => {
-  it("should render component", () => {
+  it("should render the Poll Creation window", () => {
     expect(renderTree(<PollCreation />).toJSON()).toMatchSnapshot();
   });
 });

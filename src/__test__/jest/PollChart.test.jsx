@@ -7,7 +7,7 @@ jest.mock("primereact/chart");
 
 const renderTree = (tree) => renderer.create(tree);
 describe("<PollChart>", () => {
-  it("should render component", () => {
+  it("should render the Poll Chart", () => {
     expect(renderTree(<PollChart />).toJSON()).toMatchSnapshot();
   });
 });

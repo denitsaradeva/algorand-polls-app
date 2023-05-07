@@ -21,7 +21,7 @@ jest.mock("../../App.css");
 
 const renderTree = (tree) => renderer.create(tree);
 describe("<Polls>", () => {
-  it("should render component", () => {
+  it("should render all Polls Dashboard", () => {
     expect(renderTree(<Polls />).toJSON()).toMatchSnapshot();
   });
 });
